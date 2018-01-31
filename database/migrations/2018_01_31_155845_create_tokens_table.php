@@ -13,8 +13,21 @@ class CreateTokensTable extends Migration
      */
     public function up()
     {
+        // Lots of nullables for easy seeding
         Schema::create('tokens', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('type');
+            $table->string('name')->unique();
+            $table->string('long_name')->unique()->nullable();
+            $table->string('owner')->nullable();
+            $table->string('issuer')->nullable();
+            $table->string('description')->nullable();
+            $table->text('content')->nullable();
+            $table->string('image_url')->nullable();
+            $table->string('thumb_url')->nullable();
+            $table->bigInteger('total_issued')->unsigned()->default(0);
+            $table->boolean('divisible')->default(1);
+            $table->boolean('locked')->default(0);
             $table->timestamps();
         });
     }
