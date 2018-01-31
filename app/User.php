@@ -13,7 +13,7 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function (User $user) {
-            if(User::count()) throw new Exception('Admin Only');
+            if(User::count()) throw new \Exception('Admin Only');
         });
     }
 

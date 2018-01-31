@@ -11,14 +11,14 @@ class UpdateTokens extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'update:tokens';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Update Game Token Data';
 
     /**
      * Create a new command instance.
@@ -37,6 +37,9 @@ class UpdateTokens extends Command
      */
     public function handle()
     {
-        //
+        foreach(\App\Token::get() as $token)
+        {
+            \App\Jobs\UpdateToken::dispatch($token);
+        }
     }
 }

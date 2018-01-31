@@ -19,7 +19,6 @@ class CreateTokensTable extends Migration
             $table->string('type');
             $table->string('name')->unique();
             $table->string('long_name')->unique()->nullable();
-            $table->string('owner')->nullable();
             $table->string('issuer')->nullable();
             $table->string('description')->nullable();
             $table->text('content')->nullable();

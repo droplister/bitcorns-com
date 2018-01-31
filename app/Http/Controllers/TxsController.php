@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use JsonRPC\Client;
+
 use Illuminate\Http\Request;
 
 class TxsController extends Controller
@@ -13,7 +15,18 @@ class TxsController extends Controller
      */
     public function index()
     {
-        //
+        $counterparty = new Client(env('CP_API'));
+        $counterparty->authentication(env('CP_USER'), env('CP_PASS'));
+
+        return $counterparty->execute('get_issuances', [
+            'filters' => [
+                [
+                    'field' => 'asset',
+                    'op'    => '==',
+                    'value' => 'CROPS',
+                ],
+            ],
+        ]);
     }
 
     /**

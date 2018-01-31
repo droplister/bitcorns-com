@@ -10,7 +10,10 @@ class Token extends Model
         parent::boot();
 
         static::creating(function (Token $token) {
-            if(Token::whereType($token->type)->exists()) throw new Exception('One ' . ucwords($token->type) . ' Token Allowed');
+            if(in_array($token->type, ['access', 'reward']) && Token::whereType($token->type)->exists())
+            {
+                throw new \Exception('One ' . ucwords($token->type) . ' Token Allowed');
+            }
         });
     }
 
@@ -20,6 +23,6 @@ class Token extends Model
      * @var array
      */
     protected $fillable = [
-        'type', 'name', 'long_name', 'owner', 'issuer', 'description', 'content', 'image_url', 'thumb_url', 'total_issued', 'divisible', 'locked',
+        'type', 'name', 'long_name', 'issuer', 'description', 'content', 'image_url', 'thumb_url', 'total_issued', 'divisible', 'locked',
     ];
 }
