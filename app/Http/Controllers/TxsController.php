@@ -18,13 +18,11 @@ class TxsController extends Controller
         $counterparty = new Client(env('CP_API'));
         $counterparty->authentication(env('CP_USER'), env('CP_PASS'));
 
-        return $counterparty->execute('get_issuances', [
+        return $counterparty->execute('get_dividends', [
             'filters' => [
-                [
-                    'field' => 'asset',
-                    'op'    => '==',
-                    'value' => 'CROPS',
-                ],
+                'field' => 'asset',
+                'op'    => '==',
+                'value' => 'GOXPEPE',
             ],
         ]);
     }

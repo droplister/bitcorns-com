@@ -23,6 +23,36 @@ class Token extends Model
      * @var array
      */
     protected $fillable = [
-        'type', 'name', 'long_name', 'issuer', 'description', 'content', 'image_url', 'thumb_url', 'total_issued', 'divisible', 'locked',
+        'long_name', 'issuer', 'description', 'content', 'image_url', 'thumb_url', 'total_issued', 'divisible', 'locked',
     ];
+
+    /**
+     * Get Balances
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function balances()
+    {
+        return $this->hasMany(Balance::class);
+    }
+
+    /**
+     * Get Players
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function players()
+    {
+        return $this->belongsToMany(Player::class, 'balances');
+    }
+
+    /**
+     * Get Txs
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function txs()
+    {
+        return $this->hasMany(Tx::class);
+    }
 }

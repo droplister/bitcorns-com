@@ -14,8 +14,9 @@ class CreatePlayerRewardTable extends Migration
     public function up()
     {
         Schema::create('player_reward', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
+            $table->integer('player_id')->unsigned()->index();
+            $table->integer('reward_id')->unsigned()->index();
+            $table->bigInteger('total')->unsigned();
         });
     }
 
