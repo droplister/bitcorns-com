@@ -13,6 +13,12 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        Commands\BlockScan::class,
+        Commands\Migration::class,
+        Commands\Redeploy::class,
+        Commands\UpdateBalancesCommand::class,
+        Commands\UpdatePlayersCommand::class,
+        Commands\UpdateRewardsCommand::class,
         Commands\UpdateTokens::class,
         Commands\UpdateTxs::class,
     ];
@@ -25,8 +31,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->command('block:scan')->everyMinute();
     }
 
     /**

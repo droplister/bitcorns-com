@@ -61,12 +61,12 @@ class GroupsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Player  $player
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(\App\Player $player)
     {
-        //
+        return view('groups.edit', compact('player'));
     }
 
     /**

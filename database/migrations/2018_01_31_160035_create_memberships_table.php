@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGroupRequestsTable extends Migration
+class CreateMembershipsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,13 @@ class CreateGroupRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::create('group_requests', function (Blueprint $table) {
+        Schema::create('memberships', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('group_id')->unsigned()->index();
+            $table->integer('player_id')->unsigned()->index();
+            $table->string('description');
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +31,6 @@ class CreateGroupRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('group_requests');
+        Schema::dropIfExists('memberships');
     }
 }

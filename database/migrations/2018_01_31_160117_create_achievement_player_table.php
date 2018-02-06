@@ -14,7 +14,9 @@ class CreateAchievementPlayerTable extends Migration
     public function up()
     {
         Schema::create('achievement_player', function (Blueprint $table) {
-            $table->increments('id');
+            $table->integer('achievement_id')->unsigned()->index();
+            $table->integer('player_id')->unsigned()->index();
+            $table->json('meta')->nullable();
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class GroupRequestsController extends Controller
+class MembershipsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -51,12 +51,12 @@ class GroupRequestsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Player  $player
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(\App\Player $player)
     {
-        //
+        return view('memberships.edit', compact('player'));
     }
 
     /**

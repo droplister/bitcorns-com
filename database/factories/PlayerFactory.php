@@ -17,7 +17,7 @@ $factory->define(App\Player::class, function (Faker $faker) {
     return [
         'address' => '1' . str_replace(':', '', $faker->ipv6),
         'name' => ucwords($faker->word()) . ' Farm',
-        'content' => $faker->sentence(),
+        'description' => $faker->sentence(),
         'image_url' => asset('img/farms/' . rand(1, 12) . '.jpg'),
     ];
 });

@@ -20,8 +20,8 @@ class CreateTokensTable extends Migration
             $table->string('name')->unique();
             $table->string('long_name')->unique()->nullable();
             $table->string('issuer')->nullable();
-            $table->string('description')->nullable();
             $table->text('content')->nullable();
+            $table->string('description')->nullable();
             $table->string('image_url')->nullable();
             $table->string('thumb_url')->nullable();
             $table->bigInteger('total_issued')->unsigned()->default(0);

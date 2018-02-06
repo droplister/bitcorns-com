@@ -15,19 +15,17 @@ class UpdatePlayerType implements ShouldQueue
 
     protected $counterparty;
     protected $player;
-    protected $token;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(\App\Player $player, \App\Token $token)
+    public function __construct(\App\Player $player)
     {
         $this->counterparty = new Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
         $this->player = $player;
-        $this->token = $token;
     }
 
     /**
@@ -42,7 +40,7 @@ class UpdatePlayerType implements ShouldQueue
                 [
                     'field' => 'asset',
                     'op'    => '==',
-                    'value' => $this->token->name,
+                    'value' => env('ACCESS_TOKEN_NAME'),
                 ],[
                     'field' => 'address',
                     'op'    => '==',
@@ -51,23 +49,51 @@ class UpdatePlayerType implements ShouldQueue
             ],
         ]);
 
-        $tx = \App\Tx::whereTxHash($credits[0]['event'])->first();
+        $tx_hashes = explode('_', $credits[0]['event']);
 
-        $this->player->update([
-            'tx_id' => $tx->id,
-            'type' => $credits[0]['calling_function'],
-            'name' => $this->getGeneratedName($credits[0]['calling_function']),
-            'processed_at' => \Carbon\Carbon::now(),
-        ]);
+        if(count($tx_hashes) > 1)
+        {
+            foreach($tx_hashes as $tx_hash)
+            {
+                if($tx = \App\Tx::whereTxHash($tx_hash)->whereSource($this->player->address)->first())
+                {
+                    $this->player->update([
+                        'tx_id' => $tx->id,
+                        'type' => $credits[0]['calling_function'],
+                        'name' => $this->getGeneratedName($credits[0]['calling_function'], $tx),
+                        'processed_at' => \Carbon\Carbon::now(),
+                    ]);
+                }
+            }
+        }
+        else
+        {
+            foreach($tx_hashes as $tx_hash)
+            {
+                if($tx = \App\Tx::whereTxHash($tx_hash)->first())
+                {
+                    $this->player->update([
+                        'tx_id' => $tx->id,
+                        'type' => $credits[0]['calling_function'],
+                        'name' => $this->getGeneratedName($credits[0]['calling_function'], $tx),
+                        'processed_at' => \Carbon\Carbon::now(),
+                    ]);
+                }
+            }
+        }
     }
 
-    private function getGeneratedName($type)
+    private function getGeneratedName($type, $tx)
     {
-        if('issuance' === $type)
+        if('issuance' === $type) return 'Genesis Farm';
+
+        if('dividend' === $type)
         {
-            return 'Genesis Farm';
+            $ties = num2alpha($tx->players->count() - 1);
         }
 
-        return 'Bitcorn Farm #' . \App\Tx::has('player')->count();
+        $rank = \App\Tx::has('players')->count();
+
+        return isset($ties) ? "Bitcorn Farm #{$rank}{$ties}" : "Bitcorn Farm #{$rank}";
     }
 }

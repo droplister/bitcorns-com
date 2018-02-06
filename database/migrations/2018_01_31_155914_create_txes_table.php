@@ -17,6 +17,7 @@ class CreateTxesTable extends Migration
         Schema::create('txes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('token_id')->unsigned()->index();
+            $table->integer('offset')->unsigned();
             $table->string('type');
             $table->integer('block_index')->unsigned();
             $table->integer('tx_index')->unsigned()->unique();

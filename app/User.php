@@ -9,14 +9,6 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-    public static function boot() {
-        parent::boot();
-
-        static::creating(function (User $user) {
-            if(User::count()) throw new \Exception('Admin Only');
-        });
-    }
-
     /**
      * The attributes that are mass assignable.
      *
@@ -34,4 +26,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Enforce User Limit
+     */
+    public static function boot() {
+        static::creating(function (User $user) {
+            if(User::count()) throw new \Exception('User Limit Exceeded');
+        });
+        parent::boot();
+    }
 }

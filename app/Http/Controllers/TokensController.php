@@ -23,72 +23,49 @@ class TokensController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $tokens = \App\Token::get();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+        return view('tokens.index', compact('tokens'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Token  $token
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(\App\Token $token)
     {
-        //
+        $holders = $token->balances()->nonZero()->orderBy('quantity', 'desc')->take(20)->get();
+        $holders_count = $token->balances()->nonZero()->count();
+        $reward_total = 'reward' === $token->type ? $token->rewards()->sum('total') : 0;
+        $txs_count = $token->txs->count();
+
+        return view('tokens.show', compact('token', 'holders', 'holders_count', 'reward_total', 'txs_count'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Token  $token
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(\App\Token $token)
     {
-        //
+        return view('tokens.edit', compact('token'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\Tokens\UpdateRequest  $request
+     * @param  \App\Token  $token
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(\App\Http\Requests\Tokens\UpdateRequest $request, \App\Token $token)
     {
-        //
-    }
+        $token->update($request->all());
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        return back()->with('success', 'Update Complete');
     }
 }

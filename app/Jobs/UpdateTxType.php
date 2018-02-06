@@ -39,43 +39,55 @@ class UpdateTxType implements ShouldQueue
     {
         // TODO: Optimize
 
-        if('dividend' === $this->type)
-        {
-            foreach($this->getDividends($this->token) as $order)
-            {
-                $this->updateRecentTx($this->firstOrCreateTx($this->token, $this->type, $dividend));
-            }
-        }
+        $offset = $this->getOffset($this->type, $this->token);
 
-        if('issuance' === $this->type)
+        while($offset <= 10000000)
         {
-            foreach($this->getIssuances($this->token) as $issuance)
-            {
-                $this->updateRecentTx($this->firstOrCreateTx($this->token, $this->type, $issuance));
+            switch($this->type) {
+                case 'dividend':
+                    $txs = $this->getDividends($this->token, $offset);
+                    break;
+                case 'issuance':
+                    $txs = $this->getIssuances($this->token, $offset);
+                    break;
+                case 'order':
+                    $txs = $this->getOrders($this->token, $offset);
+                    break;
+                case 'send':
+                    $txs = $this->getSends($this->token, $offset);
+                    break;
+                default:
+                    \Exception('No Type Set');
+                    break;
             }
-        }
 
-        if('order' === $this->type)
-        {
-            foreach($this->getOrders($this->token) as $order)
-            {
-                $this->updateRecentTx($this->firstOrCreateTx($this->token, $this->type, $order));
-            }
-        }
+            if(! count($txs)) break;
 
-        if('send' === $this->type)
-        {
-            foreach($this->getSends($this->token) as $send)
+            foreach($txs as $tx)
             {
-                $this->updateRecentTx($this->firstOrCreateTx($this->token, $this->type, $send));
+                $this->updateRecentTx($this->firstOrCreateTx($this->token, $this->type, $tx, $offset));
             }
+
+            $offset = $offset + 1000;
         }
     }
 
-    private function firstOrCreateTx($token, $type, $tx)
+    private function getOffset($type, $token)
+    {
+        $tx = \App\Tx::whereType($type)->with(['token' => function ($query) use ($token) {
+            $query->where('name', '=', $token->name);
+        }])->orderBy('offset', 'desc')->first();
+
+        return $tx ? $tx->offset : 0;
+    }
+
+    private function firstOrCreateTx($token, $type, $tx, $offset)
     {
         return \App\Tx::firstOrCreate([
+            'tx_index' => $tx['tx_index'],
+        ],[
             'token_id' => $token->id,
+            'offset' => $offset,
             'type' => $type,
             'block_index' => $tx['block_index'],
             'tx_index' => $tx['tx_index'],
@@ -90,7 +102,7 @@ class UpdateTxType implements ShouldQueue
         }
     }
 
-    private function getDividends($token)
+    private function getDividends($token, $offset = 0)
     {
         $gets = $this->counterparty->execute('get_dividends', [
             'filters' => [
@@ -104,6 +116,7 @@ class UpdateTxType implements ShouldQueue
                     'value' => 'valid',
                 ],
             ],
+            'offset' => $offset,
         ]);
 
         $gives = $this->counterparty->execute('get_dividends', [
@@ -118,12 +131,13 @@ class UpdateTxType implements ShouldQueue
                     'value' => 'valid',
                 ],
             ],
+            'offset' => $offset,
         ]);
 
         return array_merge($gives, $gets);
     }
 
-    private function getIssuances($token)
+    private function getIssuances($token, $offset = 0)
     {
         return $this->counterparty->execute('get_issuances', [
             'filters' => [
@@ -137,10 +151,11 @@ class UpdateTxType implements ShouldQueue
                     'value' => 'valid',
                 ],
             ],
+            'offset' => $offset,
         ]);
     }
 
-    private function getOrders($token)
+    private function getOrders($token, $offset = 0)
     {
         $gives = $this->counterparty->execute('get_orders', [
             'filters' => [
@@ -154,6 +169,7 @@ class UpdateTxType implements ShouldQueue
                     'value' => 'invalid',
                 ],
             ],
+            'offset' => $offset,
         ]);
 
         $gets = $this->counterparty->execute('get_orders', [
@@ -168,12 +184,13 @@ class UpdateTxType implements ShouldQueue
                     'value' => 'invalid',
                 ],
             ],
+            'offset' => $offset,
         ]);
 
         return array_merge($gives, $gets);
     }
 
-    private function getSends($token)
+    private function getSends($token, $offset = 0)
     {
         return $this->counterparty->execute('get_sends', [
             'filters' => [
@@ -187,6 +204,7 @@ class UpdateTxType implements ShouldQueue
                     'value' => 'valid',
                 ],
             ],
+            'offset' => $offset,
         ]);
     }
 }

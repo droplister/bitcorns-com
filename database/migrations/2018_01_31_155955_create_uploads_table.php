@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUploadRequestsTable extends Migration
+class CreateUploadsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,13 @@ class CreateUploadRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::create('upload_requests', function (Blueprint $table) {
+        Schema::create('uploads', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('player_id')->unsigned()->index();
+            $table->string('new_image_url');
+            $table->string('old_image_url');
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +31,6 @@ class CreateUploadRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('upload_requests');
+        Schema::dropIfExists('uploads');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Player;
 use App\Http\Resources\PlayerResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class PlayersController extends Controller
      */
     public function index()
     {
-        //
+        return PlayerResource::collection(Player::get());
     }
 
     /**
@@ -42,12 +43,12 @@ class PlayersController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Player $player
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Player $player)
     {
-        //
+        return new PlayerResource($player);
     }
 
     /**

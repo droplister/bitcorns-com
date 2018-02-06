@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use JsonRPC\Client;
-use Faker\Factory as Faker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,20 +14,16 @@ class UpdatePlayers implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $counterparty;
-    protected $faker;
-    protected $token;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(\App\Token $token)
+    public function __construct()
     {
         $this->counterparty = new Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
-        $this->faker = Faker::create();
-        $this->token = $token;
     }
 
     /**
@@ -39,7 +34,7 @@ class UpdatePlayers implements ShouldQueue
     public function handle()
     {
         $holders = $this->counterparty->execute('get_holders', [
-            'asset' => $this->token->name,
+            'asset' => env('ACCESS_TOKEN_NAME'),
         ]);
 
         foreach($holders as $holder)
@@ -47,14 +42,14 @@ class UpdatePlayers implements ShouldQueue
             $player = \App\Player::firstOrCreate([
                 'address' => $holder['address']
             ],[
-                'name' => ucwords($this->faker->word()) . ' Farm',
-                'content' => $this->getCornyQuote(),
+                'name' => 'LONGER NAME THAN IS NORMALLY ALLOWED ' . rand(1,999999999999),
+                'description' => $this->getCornyQuote(),
                 'image_url' => asset('img/farms/' . rand(1, 12) . '.jpg'),
             ]);
 
-            if($player->wasRecentlyCreated)
+            if(! $player->processed_at)
             {
-                \App\Jobs\UpdatePlayerType::dispatch($player, $this->token);
+                \App\Jobs\UpdatePlayerType::dispatch($player);
             }
         }
     }

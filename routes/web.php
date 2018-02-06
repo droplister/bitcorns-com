@@ -12,15 +12,10 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect(route('players.index'));
 });
 
 Auth::routes();
-
-Route::get('/home', [
-    'as' => 'home',
-    'uses' => 'PagesController@home',
-]);
 
 Route::get('/admin', [
     'as' => 'admin',
@@ -37,9 +32,9 @@ Route::get('/faq', [
     'uses' => 'PagesController@faq',
 ]);
 
-Route::get('/ico', [
-    'as' => 'ico',
-    'uses' => 'PagesController@ico',
+Route::get('/sale', [
+    'as' => 'sale',
+    'uses' => 'PagesController@sale',
 ]);
 
 Route::get('/map', [
@@ -52,11 +47,6 @@ Route::get('/tokens', [
     'uses' => 'TokensController@index',
 ]);
 
-Route::get('/tokens/create', [
-    'as' => 'tokens.create',
-    'uses' => 'TokensController@create',
-]);
-
 Route::get('/tokens/{token}', [
     'as' => 'tokens.show',
     'uses' => 'TokensController@show',
@@ -65,11 +55,6 @@ Route::get('/tokens/{token}', [
 Route::get('/tokens/{token}/edit', [
     'as' => 'tokens.edit',
     'uses' => 'TokensController@edit',
-]);
-
-Route::post('/tokens', [
-    'as' => 'tokens.store',
-    'uses' => 'TokensController@store',
 ]);
 
 Route::put('/tokens/{token}', [
@@ -102,69 +87,84 @@ Route::get('/farms/{player}/edit', [
     'uses' => 'PlayersController@edit',
 ]);
 
-Route::get('/admin/images', [
-    'as' => 'images.index',
-    'uses' => 'ImagesController@index',
+Route::put('/farms/{player}', [
+    'as' => 'players.update',
+    'uses' => 'PlayersController@update',
 ]);
 
-Route::get('/farms/{player}/images/edit', [
-    'as' => 'images.edit',
-    'uses' => 'ImagesController@edit',
+Route::get('/farms/{player}/upload', [
+    'as' => 'uploads.create',
+    'uses' => 'UploadsController@create',
 ]);
 
-Route::post('/farms/{player}/images', [
-    'as' => 'images.store',
-    'uses' => 'ImagesController@store',
+Route::post('/farms/{player}/upload', [
+    'as' => 'uploads.store',
+    'uses' => 'UploadsController@store',
 ]);
 
-Route::put('/farms/{player}/images', [
-    'as' => 'images.update',
-    'uses' => 'ImagesController@update',
+Route::get('/uploads', [
+    'as' => 'uploads.index',
+    'uses' => 'UploadsController@index',
 ]);
 
-Route::get('/associations', [
+Route::put('/uploads/{upload}', [
+    'as' => 'uploads.update',
+    'uses' => 'UploadsController@update',
+]);
+
+Route::get('/coops', [
     'as' => 'groups.index',
     'uses' => 'GroupsController@index',
 ]);
 
-Route::get('/associations/create', [
+Route::get('/coops/create', [
     'as' => 'groups.create',
     'uses' => 'GroupsController@create',
 ]);
 
-Route::get('/associations/{group}', [
+Route::get('/coops/{group}', [
     'as' => 'groups.show',
     'uses' => 'GroupsController@show',
 ]);
 
-Route::post('/associations', [
+Route::post('/coops', [
     'as' => 'groups.store',
     'uses' => 'GroupsController@store',
 ]);
 
-Route::put('/associations/{group}', [
+Route::get('/coops/{group}/edit', [
+    'as' => 'groups.edit',
+    'uses' => 'GroupsController@edit',
+]);
+
+Route::put('/coops/{group}', [
     'as' => 'groups.update',
     'uses' => 'GroupsController@update',
 ]);
 
-Route::get('/associations/{group}/request/create', [
-    'as' => 'groupRequests.create',
-    'uses' => 'GroupRequestsController@create',
+Route::get('/coops/{group}/memberships', [
+    'as' => 'memberships.index',
+    'uses' => 'MembershipsController@index',
 ]);
 
-Route::get('/associations/{group}/request/{groupRequest}/edit', [
-    'as' => 'groupRequests.edit',
-    'uses' => 'GroupRequestsController@edit',
+Route::get('/coops/{group}/memberships/create', [
+    'as' => 'memberships.create',
+    'uses' => 'MembershipsController@create',
 ]);
 
-Route::post('/associations/{group}/request/{groupRequest}', [
-    'as' => 'groupRequests.store',
-    'uses' => 'GroupRequestsController@store',
+Route::get('/farms/{player}/membership', [
+    'as' => 'memberships.edit',
+    'uses' => 'MembershipsController@edit',
 ]);
 
-Route::put('/associations/{group}/request/{groupRequest}', [
-    'as' => 'groupRequests.update',
-    'uses' => 'GroupRequestsController@update',
+Route::post('/coops/{group}/memberships', [
+    'as' => 'memberships.store',
+    'uses' => 'MembershipsController@store',
+]);
+
+Route::put('/memberships/{membership}', [
+    'as' => 'memberships.update',
+    'uses' => 'MembershipsController@update',
 ]);
 
 Route::get('/harvests', [

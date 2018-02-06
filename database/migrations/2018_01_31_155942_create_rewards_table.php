@@ -17,6 +17,7 @@ class CreateRewardsTable extends Migration
             $table->increments('id');
             $table->integer('token_id')->unsigned()->index();
             $table->integer('tx_id')->unsigned()->index();
+            $table->bigInteger('total')->unsigned();
             $table->bigInteger('per_token')->unsigned();
             $table->timestamps();
         });

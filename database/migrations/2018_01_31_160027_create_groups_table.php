@@ -15,6 +15,12 @@ class CreateGroupsTable extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('player_id')->unsigned()->index();
+            $table->string('type');
+            $table->string('name');
+            $table->string('slug');
+            $table->string('description');
+            $table->timestamp('rejected_at')->nullable();
             $table->timestamps();
         });
     }

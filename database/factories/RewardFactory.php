@@ -17,6 +17,7 @@ $factory->define(App\Balance::class, function (Faker $faker) {
     return [
         'token_id' => factory(App\Token::class)->create()->id,
         'tx_id' => factory(App\Tx::class)->create()->id,
+        'total' => $faker->numberBetween(30000000, 50000000),
         'per_token' => $faker->numberBetween(300000, 500000),
     ];
 });

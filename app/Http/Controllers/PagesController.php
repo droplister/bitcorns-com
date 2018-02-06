@@ -17,6 +17,22 @@ class PagesController extends Controller
     }
 
     /**
+     * Show Bitcorner Almanac
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function almanac(Request $request)
+    {
+        $request->validate([
+            'crops' => 'sometimes|numeric|min:0.00000039|max:100',
+        ]);
+
+        $crops = $request->input('crops', 0.001);
+
+        return view('pages.almanac', compact('crops'));
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response

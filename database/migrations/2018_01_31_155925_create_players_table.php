@@ -20,10 +20,11 @@ class CreatePlayersTable extends Migration
             $table->string('type')->nullable();
             $table->string('address')->unique();
             $table->string('name')->unique();
-            $table->text('content');
+            $table->string('description');
             $table->string('image_url');
             $table->bigInteger('rewards_total')->unsigned()->default(0);
-            $table->json('meta')->nullable();
+            $table->decimal('latitude', 10, 6)->nullable();
+            $table->decimal('longitude', 10, 6)->nullable();
             $table->timestamp('processed_at')->nullable();
             $table->timestamps();
         });

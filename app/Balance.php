@@ -16,7 +16,26 @@ class Balance extends Model
     ];
 
     /**
-     * Get Player
+     * The attributes that are appended.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'display_quantity',
+    ];
+
+    /**
+     * Display Quantity
+     *
+     * @return string
+     */
+    public function getDisplayQuantityAttribute()
+    {
+        return $this->token->divisible ? fromSatoshi($this->quantity) : number_format($this->quantity);
+    }
+
+    /**
+     * Player
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -26,12 +45,17 @@ class Balance extends Model
     }
 
     /**
-     * Get Token
+     * Token
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function token()
     {
         return $this->belongsTo(Token::class);
+    }
+
+    public function scopeNonZero($query)
+    {
+        return $query->where('quantity', '>', 0);
     }
 }

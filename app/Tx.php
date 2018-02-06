@@ -12,7 +12,7 @@ class Tx extends Model
      * @var array
      */
     protected $fillable = [
-        'token_id', 'type', 'block_index', 'tx_index', 'tx_hash', 'source', 'destination', 'quantity', 'fee', 'tx_hex', 'confirmed_at', 'processed_at',
+        'token_id', 'offset', 'type', 'block_index', 'tx_index', 'tx_hash', 'source', 'destination', 'quantity', 'fee', 'tx_hex', 'confirmed_at', 'processed_at',
     ];
 
     /**
@@ -25,17 +25,46 @@ class Tx extends Model
     ];
 
     /**
-     * Get Player
-     * 
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * The attributes that are appended.
+     *
+     * @var array
      */
-    public function player()
+    protected $appends = [
+        'display_fee', 'display_quantity',
+    ];
+
+    /**
+     * Display Fee
+     *
+     * @return string
+     */
+    public function getDisplayFeeAttribute()
     {
-        return $this->hasOne(Player::class);
+        return fromSatoshi($this->fee);
     }
 
     /**
-     * Get Token
+     * Display Quantity
+     *
+     * @return string
+     */
+    public function getDisplayQuantityAttribute()
+    {
+        return $this->token->divisible ? fromSatoshi($this->quantity) : $this->quantity;
+    }
+
+    /**
+     * Players
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function players()
+    {
+        return $this->hasMany(Player::class);
+    }
+
+    /**
+     * Token
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

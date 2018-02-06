@@ -16,7 +16,7 @@ class Reward extends Model
     ];
 
     /**
-     * Get Players
+     * Players
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -26,7 +26,7 @@ class Reward extends Model
     }
 
     /**
-     * Get Token
+     * Token
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -36,7 +36,7 @@ class Reward extends Model
     }
 
     /**
-     * Get Tx
+     * Tx
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

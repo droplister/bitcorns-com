@@ -14,6 +14,13 @@ class PlayerResource extends Resource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'name' => $this->display_name,
+            'address' => $this->address,
+            'content' => $this->content,
+            'url' => url(route('players.show', ['player' => $this->address])),
+            'image_url' => $this->display_image_url,
+            'balances' => $this->balances,
+        ];
     }
 }

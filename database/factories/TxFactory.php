@@ -16,6 +16,7 @@ use Faker\Generator as Faker;
 $factory->define(App\Tx::class, function (Faker $faker) {
     return [
         'token_id' => factory(App\Token::class)->create()->id,
+        'offset' => $faker->numberBetween(300000, 500000),
         'type' => $faker->randomElement(['issuance', 'order', 'send', 'dividend']),
         'block_index' => $faker->numberBetween(300000, 500000),
         'tx_index' => $faker->numberBetween(1, 1000000),
