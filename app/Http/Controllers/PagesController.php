@@ -16,6 +16,11 @@ class PagesController extends Controller
         $this->middleware('auth')->only('admin');
     }
 
+    public function admin()
+    {
+        return view('pages.admin');
+    }
+
     /**
      * Show Bitcorner Almanac
      *
@@ -40,6 +45,11 @@ class PagesController extends Controller
     public function index()
     {
         //
+    }
+
+    public function map()
+    {
+        return view('pages.map');
     }
 
     /**

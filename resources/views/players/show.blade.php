@@ -2,6 +2,13 @@
 
 @section('title', $player->display_name)
 
+@section('meta')
+  <meta property="og:title" content="{{ $player->name }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ $player->url }}" />
+  <meta property="og:image" content="{{ $player->display_image_url }}" />
+@endsection
+
 @section('content')
 
 <div style="position: relative;">
@@ -24,26 +31,50 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="true">History</a>
                             </li>
+                            @if($player->group_id)
+                            <li class="nav-item">
+                                <a class="nav-link" id="coop-tab" data-toggle="tab" href="#coop" role="tab" aria-controls="coop" aria-selected="true">Co-Op</a>
+                            </li>
+                            @endif
                         </ul>
                     </div>
                     <div class="card-body">
                         <div class="tab-content" id="playerTabContent">
                             <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                <h5 class="card-title text-uppercase">{{ $player->display_name }}</h5>
+                                <h5 class="card-title">{{ $player->display_name }}</h5>
                                 <p class="card-text">{{ $player->description }}</p>
                                 <a href="https://xchain.io/address/{{ $player->address }}" class="btn btn-primary" target="_blank"><i class="fa fa-search"></i> View Address</a>
                             </div>
                             <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
                                 <h5 class="card-title">Farm Deed #{{ $player->tx->tx_index }}</h5>
-                                <p class="card-text">{{ $player->name }} was established {{ $player->tx->confirmed_at->format('M d, Y') }} by a CROPS {{ $player->type }}.</p>
+                                <p class="card-text">{{ $player->name }} was established {{ $player->tx->display_confirmed_at }} by a CROPS {{ $player->type }}.</p>
                                 <a href="https://xchain.io/tx/{{ $player->tx->tx_index }}" class="btn btn-primary" target="_blank"><i class="fa fa-search"></i> View Transaction</a>
                             </div>
+                            @if($player->group_id)
+                            <div class="tab-pane fade" id="coop" role="tabpanel" aria-labelledby="coop-tab">
+                                <h5 class="card-title">{{ $player->group->name }}</h5>
+                                <p class="card-text">{{ $player->group->description }}</p>
+                                <a href="{{ url(route('groups.show', ['group' => $player->group->slug])) }}" class="btn btn-primary"><i class="fa fa-edit"></i> Join Cooperative</a>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row mt-4">
+        @if($player->latitude && $player->longitude)
+        <div class="row mt-5">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        Location <small class="text-muted">{{ $player->latitude }}, {{ $player->longitude }}</small>
+                    </div>
+                    <google-map v-bind:lat="{{ $player->latitude }}" v-bind:lng="{{ $player->longitude }}" v-bind:zoom="8"></google-map>
+                </div>
+            </div>
+        </div>
+        @endif
+        <div class="row mt-5">
             <div class="col">
                 <div class="card text-center">
                     <div class="card-header">
@@ -84,7 +115,7 @@
                                     <th>{{ $tx->type }}</th>
                                     <td><a href="{{ $tx->token->url }}">{{ $tx->token->name }}</a></td>
                                     <td class="text-muted">{{ $tx->tx_hash }}</td>
-                                    <td>{{ $tx->confirmed_at->diffForHumans() }}</td>
+                                    <td>{{ $tx->display_confirmed_at }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -93,17 +124,5 @@
                 </div>
             </div>
         </div>
-        @if($player->latitude && $player->longitude)
-        <div class="row mt-4">
-            <div class="col">
-                <div class="card">
-                    <div class="card-header">
-                        Location <small class="text-muted">{{ $player->latitude }}, {{ $player->longitude }}</small>
-                    </div>
-                    <google-map established="{{ $player->tx->confirmed_at->format('M d, Y') }}" location="{{ $player->name }}" v-bind:latitude="{{ $player->latitude }}" v-bind:longitude="{{ $player->longitude }}" v-bind:radius="{{ $player->map_radius }}"></google-map>
-                </div>
-            </div>
-        </div>
-        @endif
     </div>
 @endsection

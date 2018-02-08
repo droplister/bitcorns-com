@@ -9,20 +9,21 @@
            Sort
         </a>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-            <h6 class="dropdown-header">Useful Now</h6>
+            <h6 class="dropdown-header">By Resource</h6>
             <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'access'])) }}"><i class="fa fa-{{ $sort === 'access' ? 'check-' : '' }}circle-o mr-1"></i> Most Crops</a>
-            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'newest'])) }}"><i class="fa fa-{{ $sort === 'newest' ? 'check-' : '' }}circle-o mr-1"></i> New Farms</a>
-            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'updated'])) }}"><i class="fa fa-{{ $sort === 'updated' ? 'check-' : '' }}circle-o mr-1"></i> Updated</a>
-            <h6 class="dropdown-header">Useful Soon</h6>
             <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'reward'])) }}"><i class="fa fa-{{ $sort === 'reward' ? 'check-' : '' }}circle-o mr-1"></i> Most Bitcorn</a>
             <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'rewards'])) }}"><i class="fa fa-{{ $sort === 'rewards' ? 'check-' : '' }}circle-o mr-1"></i> Most Harvests</a>
-            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'rewards-total'])) }}"><i class="fa fa-{{ $sort === 'rewards-total' ? 'check-' : '' }}circle-o mr-1"></i> Most Harvested</a>
+            <h6 class="dropdown-header">Chronological</h6>
+            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'oldest'])) }}"><i class="fa fa-{{ $sort === 'oldest' ? 'check-' : '' }}circle-o mr-1"></i> Oldest Farms</a>
+            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'newest'])) }}"><i class="fa fa-{{ $sort === 'newest' ? 'check-' : '' }}circle-o mr-1"></i> Newest Farms</a>
+            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'updated'])) }}"><i class="fa fa-{{ $sort === 'updated' ? 'check-' : '' }}circle-o mr-1"></i> Updated Farms</a>
             <h6 class="dropdown-header">Szaboan Desert</h6>
-            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'no-access'])) }}"><i class="fa fa-{{ $sort === 'no-access' ? 'check-' : '' }}circle-o mr-1"></i> Lost Crops</a>
+            <a class="dropdown-item" href="{{ url(route('players.index', ['sort' => 'no-access'])) }}"><i class="fa fa-{{ $sort === 'no-access' ? 'check-' : '' }}circle-o mr-1"></i> No Croppers</a>
         </div>
     </div>
     <h1 class="display-4 mt-5 mb-4">
-        Bitcorn Farms <small class="lead">{{ $players->count() }} Worldwide</small>
+        <span class="d-none d-sm-inline">Bitcorn</span> Farms
+        <small class="lead d-none d-sm-inline">{{ $players->count() }} Worldwide</small>
     </h1>
     <div class="row">
         @foreach($players as $player)
@@ -47,7 +48,7 @@
                 <div class="card-footer">
                     <div class="row text-muted">
                         <div class="col">
-                            {{ $player->created_at->format('M d, Y') }}
+                            {{ $player->tx->display_confirmed_at }}
                         </div>
                         <div class="col text-right">
                             Harvests: {{ $player->rewards_count }}

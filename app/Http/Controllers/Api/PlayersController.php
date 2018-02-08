@@ -16,7 +16,7 @@ class PlayersController extends Controller
      */
     public function index()
     {
-        return PlayerResource::collection(Player::get());
+        return PlayerResource::collection(Player::whereNotNull('latitude')->whereHasAccess()->get());
     }
 
     /**

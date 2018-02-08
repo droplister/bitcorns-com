@@ -31,6 +31,12 @@ class TokensTableSeeder extends Seeder
                 'image_url' => asset('/img/tokens/BRAGGING.png'),
                 'thumb_url' => asset('/img/tokens/thumbs/BRAGGING.png'),
             ],[
+                'type' => 'trophy',
+                'name' => 'SQUADGOALS',
+                'content' => 'Squad Goals (SQUADGOALS:XCP) is the trophy token that will be awarded in the Year 2022 to the Bitcorns.com coop that harvests the most Bitcorn in total. Ownership will go to the coop\'s creator and one token will go to each member farm.',
+                'image_url' => asset('/img/tokens/SQUADGOALS.png'),
+                'thumb_url' => asset('/img/tokens/thumbs/SQUADGOALS.png'),
+            ],[
                 'type' => 'upgrade',
                 'name' => 'HELIPAD',
                 'content' => 'Helipad (HELIPAD:XCP) is a farm upgrade token that will be available for purchase using BITCORN starting on April 1st, 2018. (Helicopter not included.) This token\'s art and price will be announced soon, so stay tuned!',

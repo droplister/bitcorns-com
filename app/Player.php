@@ -66,7 +66,7 @@ class Player extends Model
         $area = $meters_squared = $acres * 4046.85642;
         $radius = sqrt($area / pi());
 
-        return $radius;
+        return $radius * 10; // make em bigger
     }
 
     /**
@@ -97,6 +97,16 @@ class Player extends Model
     public function balances()
     {
         return $this->hasMany(Balance::class)->with('token');
+    }
+
+    /**
+     * Group
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
     }
 
     /**

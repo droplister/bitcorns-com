@@ -12,7 +12,7 @@ class Token extends Model
      * @var array
      */
     protected $fillable = [
-        'long_name', 'issuer', 'content', 'description', 'image_url', 'thumb_url', 'total_issued', 'divisible', 'locked',
+        'type', 'long_name', 'name', 'issuer', 'content', 'description', 'image_url', 'thumb_url', 'total_issued', 'divisible', 'locked',
     ];
 
     /**

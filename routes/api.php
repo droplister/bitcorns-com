@@ -12,6 +12,13 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/map', [
+    'uses' => 'Api\GoogleMapController@index',
+]);
+
+Route::get('/map/{group}', [
+    'uses' => 'Api\GoogleMapController@show',
+]);
 
 Route::get('/api/tokens', [
     'uses' => 'Api\TokensController@index',

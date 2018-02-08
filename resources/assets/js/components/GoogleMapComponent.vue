@@ -1,22 +1,34 @@
 <template>
   <gmap-map
+    :zoom="zoom"
     :center="center"
-    :zoom="12"
-    :map-type-id="mapTypeId"
     style="width: 100%; height: 400px"
   >
-    <gmap-info-window :options="infoOptions" :position="infoWindowPos" :opened="infoWinOpen" @closeclick="infoWinOpen=false">
-      <b>{{infoContent}}</b><br />
-      {{infoSubContent}}
+    <gmap-info-window
+      :options="infoOptions"
+      :position="infoPosition"
+      :opened="infoWinOpen"
+      @closeclick="infoWinOpen=false"
+    >
+      <b><a v-bind:href="href">{{name}}</a></b>
+      <br />{{date}}
     </gmap-info-window>
-    <gmap-circle :center="center" :radius="radius" :options="{editable: false, strokeColor:'#000000', fillColor:'#FFFFFF'}"></gmap-circle>
+
+    <gmap-circle
+      :key="index"
+      v-for="(m, index) in markers"
+      :center="m.position"
+      :radius="m.radius"
+      :options="m.options"
+    ></gmap-circle>
+
     <gmap-marker
       :key="index"
       v-for="(m, index) in markers"
       :position="m.position"
       :clickable="true"
       :draggable="false"
-      @click="toggleInfoWindow(m,index)"
+      @click="toggleInfo(m,index)"
     ></gmap-marker>
   </gmap-map>
 </template>
@@ -32,51 +44,58 @@
   });
  
   export default {
-    props: ['established', 'location', 'latitude', 'longitude', 'radius'],
+
+    props: ['lat', 'lng', 'zoom', 'group'],
 
     data () {
       return {
-        center: {lat: this.latitude, lng: this.longitude},
-        mapTypeId: 'satellite',
-        infoContent: '',
-        infoSubContent: '',
-        infoWindowPos: {
+        center: {lat: this.lat, lng: this.lng},
+        markers: null,
+        name: '',
+        date: '',
+        href: '',
+        infoPosition: {
           lat: 0,
           lng: 0
         },
         infoWinOpen: false,
         currentMidx: null,
-        //optional: offset infowindow so it visually sits nicely on top of our marker
         infoOptions: {
           pixelOffset: {
             width: 0,
             height: -35
           }
         },
-        markers: [{
-          position: {lat: this.latitude, lng: this.longitude},
-          infoText: this.location,
-          infoSubText: this.established,
-        }],
       }
     },
 
+    created: function () {
+      this.fetchData();
+    },
+
     methods: {
-      toggleInfoWindow: function(marker, idx) {
-        this.infoWindowPos = marker.position;
-        this.infoContent = marker.infoText;
-        this.infoSubContent = marker.infoSubText;
-        //check if its the same marker that was selected if yes toggle
+      fetchData: function () {
+        var api = this.group ? '/api/map/' + this.group : '/api/map';
+        var self = this;
+        $.get(api, function( data ) {
+          self.markers = data;
+          console.log(data);
+        });
+      },
+      toggleInfo: function(marker, idx) {
+        this.infoPosition = marker.position;
+        this.name = marker.name;
+        this.date = marker.date;
+        this.href = marker.href;
         if (this.currentMidx == idx) {
             this.infoWinOpen = !this.infoWinOpen;
         }
-        //if different marker set infowindow to open and reset current marker index
         else {
           this.infoWinOpen = true;
           this.currentMidx = idx;
         }
       }
-    }
+    },
 
   }
 </script>

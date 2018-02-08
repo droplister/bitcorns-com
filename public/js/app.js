@@ -50118,6 +50118,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -50129,50 +50141,56 @@ __WEBPACK_IMPORTED_MODULE_1_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_0_vue2
 });
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['established', 'location', 'latitude', 'longitude', 'radius'],
+
+  props: ['lat', 'lng', 'zoom', 'group'],
 
   data: function data() {
     return {
-      center: { lat: this.latitude, lng: this.longitude },
-      mapTypeId: 'satellite',
-      infoContent: '',
-      infoSubContent: '',
-      infoWindowPos: {
+      center: { lat: this.lat, lng: this.lng },
+      markers: null,
+      name: '',
+      date: '',
+      href: '',
+      infoPosition: {
         lat: 0,
         lng: 0
       },
       infoWinOpen: false,
       currentMidx: null,
-      //optional: offset infowindow so it visually sits nicely on top of our marker
       infoOptions: {
         pixelOffset: {
           width: 0,
           height: -35
         }
-      },
-      markers: [{
-        position: { lat: this.latitude, lng: this.longitude },
-        infoText: this.location,
-        infoSubText: this.established
-      }]
+      }
     };
   },
 
 
+  created: function created() {
+    this.fetchData();
+  },
+
   methods: {
-    toggleInfoWindow: function toggleInfoWindow(marker, idx) {
-      this.infoWindowPos = marker.position;
-      this.infoContent = marker.infoText;
-      this.infoSubContent = marker.infoSubText;
-      //check if its the same marker that was selected if yes toggle
+    fetchData: function fetchData() {
+      var api = this.group ? '/api/map/' + this.group : '/api/map';
+      var self = this;
+      $.get(api, function (data) {
+        self.markers = data;
+        console.log(data);
+      });
+    },
+    toggleInfo: function toggleInfo(marker, idx) {
+      this.infoPosition = marker.position;
+      this.name = marker.name;
+      this.date = marker.date;
+      this.href = marker.href;
       if (this.currentMidx == idx) {
         this.infoWinOpen = !this.infoWinOpen;
+      } else {
+        this.infoWinOpen = true;
+        this.currentMidx = idx;
       }
-      //if different marker set infowindow to open and reset current marker index
-      else {
-          this.infoWinOpen = true;
-          this.currentMidx = idx;
-        }
     }
   }
 
@@ -57421,7 +57439,7 @@ var render = function() {
     "gmap-map",
     {
       staticStyle: { width: "100%", height: "400px" },
-      attrs: { center: _vm.center, zoom: 12, "map-type-id": _vm.mapTypeId }
+      attrs: { zoom: _vm.zoom, center: _vm.center }
     },
     [
       _c(
@@ -57429,7 +57447,7 @@ var render = function() {
         {
           attrs: {
             options: _vm.infoOptions,
-            position: _vm.infoWindowPos,
+            position: _vm.infoPosition,
             opened: _vm.infoWinOpen
           },
           on: {
@@ -57439,22 +57457,20 @@ var render = function() {
           }
         },
         [
-          _c("b", [_vm._v(_vm._s(_vm.infoContent))]),
+          _c("b", [
+            _c("a", { attrs: { href: _vm.href } }, [_vm._v(_vm._s(_vm.name))])
+          ]),
+          _vm._v(" "),
           _c("br"),
-          _vm._v("\n    " + _vm._s(_vm.infoSubContent) + "\n  ")
+          _vm._v(_vm._s(_vm.date) + "\n  ")
         ]
       ),
       _vm._v(" "),
-      _c("gmap-circle", {
-        attrs: {
-          center: _vm.center,
-          radius: _vm.radius,
-          options: {
-            editable: false,
-            strokeColor: "#000000",
-            fillColor: "#FFFFFF"
-          }
-        }
+      _vm._l(_vm.markers, function(m, index) {
+        return _c("gmap-circle", {
+          key: index,
+          attrs: { center: m.position, radius: m.radius, options: m.options }
+        })
       }),
       _vm._v(" "),
       _vm._l(_vm.markers, function(m, index) {
@@ -57463,7 +57479,7 @@ var render = function() {
           attrs: { position: m.position, clickable: true, draggable: false },
           on: {
             click: function($event) {
-              _vm.toggleInfoWindow(m, index)
+              _vm.toggleInfo(m, index)
             }
           }
         })

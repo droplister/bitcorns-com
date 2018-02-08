@@ -6,6 +6,7 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="csrf-token" content="{{ csrf_token() }}">
+@yield('meta')
 
   <!-- Title Tags -->
   <title>@yield('title') &ndash; {{ config('app.name', 'Laravel') }}</title>
@@ -13,7 +14,7 @@
 
   <!-- Stylesheets -->
   <link href="{{ asset('favicon.ico') }}" rel="icon">
-  <link href="{{ asset('css/app.css') }}?time={{ \Carbon\Carbon::now()->timestamp }}" rel="stylesheet">
+  <link href="{{ asset('css/app.css') }}?fresh" rel="stylesheet">
 
   <!--
    /$$       /$$   /$$                                            
@@ -52,22 +53,36 @@
         <a href="{{ url('/') }}" class="navbar-brand">&#x1f33d; <span class="d-none d-sm-inline">{{ config('app.name', 'Laravel') }}</span></a>
         <div class="collapse navbar-collapse">
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
+            <li class="nav-item d-none d-sm-inline">
               <a class="nav-link" href="{{ url('/') }}">Home</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url(route('players.index')) }}">Farms</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url(route('tokens.index')) }}">Tokens</a>
+              <a class="nav-link" href="{{ url(route('groups.index')) }}">Coops</a>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="{{ url(route('faq')) }}" id="almanac_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pages</a>
               <div class="dropdown-menu" aria-labelledby="almanac_dropdown">
-                <a class="dropdown-item" href="{{ url(route('almanac')) }}">Bitcorn Almanac</a>
+                <a class="dropdown-item" href="{{ url(route('almanac')) }}">Almanac</a>
+                <a class="dropdown-item" href="{{ url(route('map')) }}">World Map</a>
+                <a class="dropdown-item" href="{{ url(route('tokens.index')) }}">Game Tokens</a>
                 <a class="dropdown-item" href="https://medium.com/@BitcornCrops" target="_blank">News &amp; Updates</a>
               </div>
             </li>
+            @if(Auth::check())
+            <li class="nav-item ml-4">
+              <a class="nav-link" href="{{ url('/logout') }}"
+                onclick="event.preventDefault();
+                document.getElementById('logout-form').submit();">
+                <i class="fa fa-sign-out"></i> Logout
+              </a>
+              <form id="logout-form" action="{{ url(route('logout')) }}" method="POST" style="display: none;">
+                {{ csrf_field() }}
+              </form>
+            </li>
+            @endif
           </ul>
         </div>
         <form action="{{ url(route('players.index')) }}" method="GET" class="form-inline my-2 my-lg-0 d-none d-md-inline">
@@ -87,7 +102,7 @@
   <footer class="text-muted">
     <div class="container">
       <p class="float-right">
-        <a href="#" class="d-none d-sm-inline">Back to top</a>
+        <a href="#">Back to top</a>
       </p>
       <p><a href="{{ env('GITHUB') }}" target="_blank">Check out our Github</a></p>
     </div>
@@ -96,7 +111,7 @@
 </div>
 
 <!-- Scripts -->
-<script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/app.js') }}?fresh"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-112477384-4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];

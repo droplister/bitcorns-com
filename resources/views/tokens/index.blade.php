@@ -7,7 +7,7 @@
 @section('content')
 <div class="container">
     <h1 class="display-4 mt-5 mb-5">
-        Game Tokens <small class="lead">{{ $tokens->count() }} Found</small>
+        Game Tokens <small class="lead d-none d-sm-inline">{{ $tokens->count() }} Found</small>
     </h1>
     @foreach($tokens as $token)
     <div class="card mb-4">

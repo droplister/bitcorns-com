@@ -89,7 +89,7 @@
                                          <strong>{{ $errors->first('signature') }}</strong>
                                     </div>
                                 @else
-                                    <small id="signatureHelp" class="form-text text-muted">Enter your signed timestamp message. <a href="https://www.youtube.com/watch?v=Zne720b31Kk" target="_blank"><i class="fa fa-external-link"></i> Tutorial</a></small>
+                                    <small id="signatureHelp" class="form-text text-muted">Enter your signed timestamp message. <a href="https://youtu.be/AvPdaNb35qY" target="_blank"><i class="fa fa-external-link"></i> Tutorial</a></small>
                                 @endif
                             </div>
                             <div class="form-group">

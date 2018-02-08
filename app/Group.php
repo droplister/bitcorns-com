@@ -3,11 +3,13 @@
 namespace App;
 
 use App\Traits\Moderatable;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 
 class Group extends Model
 {
-    use Moderatable;
+    use HasSlug, Moderatable;
 
     /**
      * The attributes that are mass assignable.
@@ -34,7 +36,7 @@ class Group extends Model
      */
     public function balances()
     {
-        return $this->hasMany(Balance::class);
+        return $this->hasManyThrough(Balance::class, Player::class);
     }
 
     /**
@@ -65,5 +67,37 @@ class Group extends Model
     public function players()
     {
         return $this->hasMany(Player::class);
+    }
+
+    public function accessBalance()
+    {
+        $token = \App\Token::whereType('access')->first();
+        return fromSatoshi($this->balances()->where('token_id', $token->id)->sum('quantity'));
+    }
+
+    public function rewardBalance()
+    {
+        $token = \App\Token::whereType('reward')->first();
+        return $this->balances()->where('token_id', $token->id)->sum('quantity');
+    }
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 }

@@ -30,8 +30,18 @@ class Tx extends Model
      * @var array
      */
     protected $appends = [
-        'display_fee', 'display_quantity',
+        'display_confirmed_at', 'display_fee', 'display_quantity',
     ];
+
+    /**
+     * Display Confirmed At
+     *
+     * @var string
+     */
+    public function getDisplayConfirmedAtAttribute()
+    {
+        return $this->confirmed_at ? $this->confirmed_at->format('M d, Y') : $this->created_at->format('M d, Y');
+    }
 
     /**
      * Display Fee

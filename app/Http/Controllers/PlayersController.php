@@ -15,7 +15,7 @@ class PlayersController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'sort' => 'sometimes|in:access,reward,rewards,rewards-total,no-access,newest,updated',
+            'sort' => 'sometimes|in:access,reward,rewards,rewards-total,no-access,newest,oldest,updated',
         ]);
 
         $sort = $request->input('sort', 'access');
@@ -30,7 +30,7 @@ class PlayersController extends Controller
                 $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc')->get();
                 break;
             case 'rewards':
-                $players = \App\Player::whereHasAccess()->orderBy('rewards_count', 'desc')->get();
+                $players = \App\Player::whereHasAccess()->orderBy('rewards_count', 'desc')->orderBy('processed_at', 'asc')->get();
                 break;
             case 'rewards-total':
                 $players = \App\Player::whereHasAccess()->orderBy('rewards_total', 'desc')->get();
@@ -41,12 +41,20 @@ class PlayersController extends Controller
             case 'newest':
                 $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'desc')->get();
                 break;
+            case 'oldest':
+                $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'asc')->get();
+                break;
             case 'updated':
                 $players = \App\Player::whereHasAccess()->orderBy('updated_at', 'desc')->get();
                 break;
             default:
                 \Exception('Sort Validation Failure');
                 break;
+        }
+
+        if($request->has('q'))
+        {
+             $players = \App\Player::whereHasAccess()->where('name', 'like', '%' . $request->q . '%')->orWhere('address', 'like', '%' . $request->q . '%')->get();
         }
 
         return view('players.index', compact('players', 'sort'));
@@ -128,14 +136,12 @@ class PlayersController extends Controller
     {
         if($request->has('latitude') && $request->has('longitude'))
         {
-            if(! \App\Player::whereNotNull('latitude')->exists()) return false;
-
             $unit = 6378100; // meters
             $nearby_player = \App\Player::select(\DB::raw("*,
-               ($unit * ACOS(COS(RADIANS($player->latitude))
+               ($unit * ACOS(COS(RADIANS($request->latitude))
                       * COS(RADIANS(latitude))
-                      * COS(RADIANS($player->longitude) - RADIANS(longitude))
-                      + SIN(RADIANS($player->latitude))
+                      * COS(RADIANS($request->longitude) - RADIANS(longitude))
+                      + SIN(RADIANS($request->latitude))
                       * SIN(RADIANS(latitude)))) AS distance")
                )->whereNotNull('latitude')
                 ->whereNotIn('id', [$player->id])
@@ -144,12 +150,15 @@ class PlayersController extends Controller
 
             if($nearby_player)
             {
-                $distance_between = distance($player->latitude, $player->longitude, $nearby_player->latitude, $nearby_player->longitude); // meters
+                $distance_between = distance($request->latitude, $request->longitude, $nearby_player->latitude, $nearby_player->longitude); // meters
                 $distance_required = $player->map_radius + $nearby_player->map_radius; // meters
+
+                \Storage::append('testing.log', $distance_between);
+                \Storage::append('testing.log', $distance_required);
 
                 if($distance_between < $distance_required)
                 {
-                    return 'Too Close to ' . $nearby_player->name;
+                    return 'No Tresspassing (' . $nearby_player->name . ')';
                 }
             }
         }

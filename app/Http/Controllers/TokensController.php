@@ -23,7 +23,7 @@ class TokensController extends Controller
      */
     public function index()
     {
-        $tokens = \App\Token::get();
+        $tokens = \App\Token::orderBy('type', 'asc')->get();
 
         return view('tokens.index', compact('tokens'));
     }

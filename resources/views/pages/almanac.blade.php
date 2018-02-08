@@ -9,7 +9,7 @@
         Bitcorn Almanac
     </h1>
 
-    <p class="lead">Definitive guide to <span class="d-none d-sm-inline">BITCORN CROPS</span> harvests (2018-2022).</p>
+    <p class="lead">Definitive guide to all <span class="d-none d-sm-inline">BITCORN CROPS</span> harvests<span class="d-none d-sm-inline"> (2018-2022)</span>.</p>
 
     <img src="{{ asset('img/farmers-almanac.jpg') }}" alt="Farmers Almanac" class="img-thumbnail img-fluid mt-3 d-none d-sm-inline" />
     <img src="{{ asset('img/farmers-almanac-xs.jpg') }}" alt="Farmers Almanac" class="img-thumbnail img-fluid mt-3 d-inline d-sm-none" />

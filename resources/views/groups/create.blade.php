@@ -1,13 +1,8 @@
 @extends('layouts.app')
 
-@section('title', $player->name)
+@section('title', 'Start a Coop')
 
 @section('content')
-<section class="jumbotron text-center" style="background: url({{ $player->display_image_url }}) no-repeat center center / cover;">
-    <a href="{{ url(route('players.show', ['player' => $player->address])) }}" class="btn btn-sm btn-light">
-        <i class="fa fa-eye"></i> View
-    </a>
-</section>
 <div class="content">
     <div class="container">
         @include('partials.session')
@@ -15,44 +10,42 @@
             <div class="col">
                 <div class="card">
                     <div class="card-header">
-                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url(route('players.edit', ['player' => $player->address])) }}" role="tab"><i class="fa fa-edit"></i> Profile</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url(route('uploads.store', ['player' => $player->address])) }}" role="tab"><i class="fa fa-photo"></i> Image</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link active" href="{{ url(route('memberships.edit', ['player' => $player->address])) }}" role="tab"><i class="fa fa-sitemap"></i> Co-Op</a>
-                            </li>
-                        </ul>
+                        Start a Cooperative
                     </div>
                     <div class="card-body">
-                        @if($player->group_id)
-                        <form role="form" method="POST" action="{{ url(route('memberships.destroy', ['player' => $player->address])) }}">
-                            <input type="hidden" name="_method" value="DELETE">
+                        <p class="card-text">Given that they have <a href="{{ url(route('tokens.show', ['token' => 'CROPS'])) }}">0.1 CROPS</a>, farms can start cooperatives and cummulatively rank.</p>
+                        <hr class="mt-4 mb-4" />
+                        <form role="form" method="POST" action="{{ url(route('groups.store')) }}">
                             {{ csrf_field() }}
                             <div class="form-group">
-                                <label for="name">Member of:</label>
-                                <select class="form-control" disabled> 
-                                    <option>{{ $player->group->name }}</option>
-                                </select>
+                                <label for="address">Admin</label>
+                                <input id="address" type="text" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" name="address" value="{{ old('address') }}" placeholder="19QWXpMXeLkoEKEJv2xo9rn8wkPCyxACSX">
+                                @if ($errors->has('address'))
+                                    <div class="invalid-feedback">
+                                         <strong>{{ $errors->first('address') }}</strong>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input id="name" type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" name="name" value="{{ old('name') }}" placeholder="Bitcorn Coop">
                                 @if ($errors->has('name'))
                                     <div class="invalid-feedback">
                                          <strong>{{ $errors->first('name') }}</strong>
                                     </div>
                                 @endif
                             </div>
-                            <div class="form-check">
-                                <input type="checkbox" name="leave" id="leave" required>
-                                <label for="leave">Please remove me from this group.</label>
-                                @if ($errors->has('leave'))
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <input id="description" type="text" class="form-control{{ $errors->has('description') ? ' is-invalid' : '' }}" name="description" value="{{ old('description') }}" placeholder="Bitcorn Cooperative (Alpha AF)">
+                                @if ($errors->has('description'))
                                     <div class="invalid-feedback">
-                                         <strong>{{ $errors->first('leave') }}</strong>
+                                         <strong>{{ $errors->first('description') }}</strong>
                                     </div>
+                                @else
+                                    <small id="descriptionHelp" class="form-text text-muted">Choose a name and slogan for your coop.</small>
                                 @endif
                             </div>
-
                             <hr class="mb-4" />
                             <div class="form-group">
                                 <label for="timestamp">Timestamp</label>
@@ -82,9 +75,6 @@
                                 </button>
                             </div>
                         </form>
-                        @else
-                            <p><a href="{{ url(route('groups.index')) }}">Join a cooperative</a> or <a href="{{ url(route('groups.create')) }}">start your own</a>!</p>
-                        @endif
                     </div>
                 </div>
             </div>

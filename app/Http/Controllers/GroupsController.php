@@ -23,7 +23,9 @@ class GroupsController extends Controller
      */
     public function index()
     {
-        //
+        $groups = \App\Group::withCount('players')->orderBy('players_count', 'desc')->orderBy('name', 'asc')->get();
+
+        return view('groups.index', compact('groups'));
     }
 
     /**
@@ -33,29 +35,57 @@ class GroupsController extends Controller
      */
     public function create()
     {
-        //
+        return view('groups.create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\Groups\StoreRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(\App\Http\Requests\Groups\StoreRequest $request)
     {
-        //
+        $player = \App\Player::whereAddress($request->address)->first();
+
+        if($error = $this->guardAgainstInsufficientAccess($player))
+        {
+            return back()->with('error', $error);
+        }
+
+        if($error = $this->guardAgainstInvalidSignature($request, $player))
+        {
+            return back()->with('error', $error);
+        }
+
+        $group = \App\Group::create([
+            'player_id' => $player->id,
+            'type' => 'open',
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+
+        \App\Membership::create([
+            'group_id' => $group->id,
+            'player_id' => $player->id,
+            'description' => 'Early Alpha Group Admin',
+            'accepted_at' => \Carbon\Carbon::now(),
+        ]);
+
+        $player->update(['group_id' => $group->id]);
+
+        return redirect(route('groups.index'))->with('success', 'Group Established');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Group  $group
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(\App\Group $group)
     {
-        //
+        return view('groups.show', compact('group'));
     }
 
     /**
@@ -90,5 +120,62 @@ class GroupsController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Minimum access token balance required.
+     *
+     * @param  \App\Player  $player
+     */
+    private function guardAgainstInsufficientAccess(\App\Player $player)
+    {
+        if($player->accessBalance()->quantity < env('MIN_ACCESS_GROUP'))
+        {
+            return 'Low Access Token Balance';
+        }
+    }
+
+    /**
+     * Verify Signature
+     *
+     * @param  \App\Http\Requests\Groups\StoreRequest  $request
+     * @param  \App\Player  $player
+     * @return \Illuminate\Http\Response
+     */
+    private function guardAgainstInvalidSignature(\App\Http\Requests\Groups\StoreRequest $request, \App\Player $player)
+    {
+        try
+        {
+            $timestamp = \Carbon\Carbon::parse($request->timestamp);
+        }
+        catch(\Exception $e)
+        {
+            return 'Invalid Timestamp';
+        }
+
+        if($timestamp < \Carbon\Carbon::now()->subHour())
+        {
+            return 'Expired Timestamp';
+        }
+
+        try
+        {
+            $messageVerification = \BitWasp\BitcoinLib\BitcoinLib::verifyMessage(
+                $player->address,
+                $request->signature,
+                $request->timestamp
+            );
+
+            if(! $messageVerification)
+            {
+                return 'No Message Verification';
+            }
+        }
+        catch(\Exception $e)
+        {
+            return 'Invalid Bitcoin Address';
+        }
+
+        return false;
     }
 }

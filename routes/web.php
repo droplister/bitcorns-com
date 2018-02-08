@@ -12,7 +12,11 @@
 */
 
 Route::get('/', function () {
-    return redirect(route('players.index'));
+    return redirect(route('map'));
+});
+
+Route::get('/world', function () {
+    return redirect(route('map'));
 });
 
 Auth::routes();
@@ -102,7 +106,7 @@ Route::post('/farms/{player}/upload', [
     'uses' => 'UploadsController@store',
 ]);
 
-Route::get('/uploads', [
+Route::get('/uploads/moderate', [
     'as' => 'uploads.index',
     'uses' => 'UploadsController@index',
 ]);
@@ -155,6 +159,11 @@ Route::get('/coops/{group}/memberships/create', [
 Route::get('/farms/{player}/membership', [
     'as' => 'memberships.edit',
     'uses' => 'MembershipsController@edit',
+]);
+
+Route::delete('/farms/{player}/membership', [
+    'as' => 'memberships.destroy',
+    'uses' => 'MembershipsController@destroy',
 ]);
 
 Route::post('/coops/{group}/memberships', [

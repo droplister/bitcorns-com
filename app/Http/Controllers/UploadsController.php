@@ -23,7 +23,9 @@ class UploadsController extends Controller
      */
     public function index()
     {
-        return \App\Upload::pending()->get();
+        $uploads = \App\Upload::pending()->orderBy('created_at', 'asc')->get();
+
+        return view('uploads.index', compact('uploads'));
     }
 
     /**
@@ -46,7 +48,12 @@ class UploadsController extends Controller
      */
     public function store(\App\Http\Requests\Uploads\StoreRequest $request, \App\Player $player)
     {
-        if($error = $this->guardAgainstInsufficientAccess($player) || $error = $this->guardAgainstInvalidSignature($request, $player))
+        if($error = $this->guardAgainstInsufficientAccess($player))
+        {
+            return back()->with('error', $error);
+        }
+
+        if($error = $this->guardAgainstInvalidSignature($request, $player))
         {
             return back()->with('error', $error);
         }
@@ -79,15 +86,25 @@ class UploadsController extends Controller
         if('accept' === $request->action)
         {
             $upload->accept();
+
+            if($upload->player->image_url != $upload->new_image_url)
+            {
+                $upload->player->update([
+                    'image_url' => $upload->new_image_url,
+                ]);
+            }
         }
 
         if('reject' === $request->action)
         {
             $upload->reject();
 
-            $upload->player->update([
-                'image_url' => $upload->old_image_url,
-            ]);
+            if($upload->player->image_url == $upload->new_image_url)
+            {
+                $upload->player->update([
+                    'image_url' => $upload->old_image_url,
+                ]);
+            }
         }
 
         return back()->with('success', 'Upload Moderated');

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\Resource;
 
-class PlayerResource extends Resource
+class GoogleMapResource extends Resource
 {
     /**
      * Transform the resource into an array.
@@ -15,7 +15,7 @@ class PlayerResource extends Resource
     public function toArray($request)
     {
         return [
-            'name' => $this->name,
+            'name' => $this->display_name,
             'date' => $this->tx->display_confirmed_at,
             'href' => $this->url,
             'options' => [
@@ -27,7 +27,7 @@ class PlayerResource extends Resource
                 'lat' => (float) $this->latitude,
                 'lng' => (float) $this->longitude,
             ],
-            'radius' => $this->map_radius,
+            'radius' => round($this->map_radius),
         ];
     }
 }
