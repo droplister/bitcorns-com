@@ -17,7 +17,10 @@ class PlayerResource extends Resource
         return [
             'name' => $this->name,
             'date' => $this->tx->display_confirmed_at,
+            'description' => $this->description,
             'href' => $this->url,
+            'image' => $this->display_image_url,
+            'thumb' => $this->display_thumb_url,
             'options' => [
                 'editable' => false,
                 'strokeColor' => '#000000',

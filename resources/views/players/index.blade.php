@@ -30,7 +30,7 @@
         <div class="col-12 col-sm-6 col-md-4 mt-4 mb-2">
             <div class="card">
                 <a href="{{ url(route('players.show', ['show' => $player->address])) }}">
-                    <img src="{{ $player->display_image_url }}" alt="{{ $player->name }}" class="card-img-top" />
+                    <img src="{{ $player->display_thumb_url }}" alt="{{ $player->name }}" class="card-img-top" />
                 </a>
                 <div class="card-body">
                     <a href="{{ url(route('players.show', ['show' => $player->address])) }}" class="btn btn-outline-primary pull-right">

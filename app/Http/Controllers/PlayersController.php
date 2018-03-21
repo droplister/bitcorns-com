@@ -68,7 +68,15 @@ class PlayersController extends Controller
      */
     public function show(\App\Player $player)
     {
-        return view('players.show', compact('player'));
+        $balances = $player->balances()->whereHas('token', function($token){
+            $token->whereType('access');
+        })->get();
+
+        $upgrades = $player->balances()->whereHas('token', function($token){
+            $token->whereType('upgrade');
+        })->get();
+
+        return view('players.show', compact('player', 'balances', 'upgrades'));
     }
 
     /**
@@ -136,6 +144,8 @@ class PlayersController extends Controller
     {
         if($request->has('latitude') && $request->has('longitude'))
         {
+            if($request->latitude === null) return false;
+
             $unit = 6378100; // meters
             $nearby_player = \App\Player::select(\DB::raw("*,
                ($unit * ACOS(COS(RADIANS($request->latitude))

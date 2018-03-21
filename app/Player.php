@@ -30,7 +30,7 @@ class Player extends Model
      * @var array
      */
     protected $appends = [
-        'display_name', 'display_image_url', 'map_radius', 'url',
+        'display_name', 'display_image_url', 'display_thumb_url', 'map_radius', 'url',
     ];
 
     /**
@@ -50,7 +50,21 @@ class Player extends Model
      */
     public function getDisplayImageUrlAttribute()
     {
-        return $this->accessBalance()->quantity ? $this->image_url : env('NO_ACCESS_IMAGE_URL');
+        $url = $this->accessBalance()->quantity ? $this->image_url : env('NO_ACCESS_IMAGE_URL');
+
+        return str_replace('storage/custom', 'images/original', $url);
+    }
+
+    /**
+     * Display Thumb Url
+     *
+     * @var string
+     */
+    public function getDisplayThumbUrlAttribute()
+    {
+        $url = $this->accessBalance()->quantity ? $this->image_url : env('NO_ACCESS_IMAGE_URL');
+
+        return str_replace('storage/custom', 'images/thumb', $url);
     }
 
     /**

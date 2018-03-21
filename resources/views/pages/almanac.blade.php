@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Bitcorn Almanac')
+@section('title', 'Farmer\'s Almanac')
 
 @section('content')
 <div class="container">
 
     <h1 class="display-4 mt-5 mb-2">
-        Bitcorn Almanac
+        Almanac
     </h1>
 
     <p class="lead">Definitive guide to all <span class="d-none d-sm-inline">BITCORN CROPS</span> harvests<span class="d-none d-sm-inline"> (2018-2022)</span>.</p>

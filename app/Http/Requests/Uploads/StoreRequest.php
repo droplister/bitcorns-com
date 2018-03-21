@@ -24,7 +24,7 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'image' => 'required|mimetypes:image/jpeg|mimes:jpeg,jpg|dimensions:width=1600,height=900|max:2500',
+            'image' => 'required|mimetypes:image/jpeg|mimes:jpeg,jpg|dimensions:width=1600,height=900|max:5000',
             'timestamp' => 'required',
             'signature' => 'required',
         ];

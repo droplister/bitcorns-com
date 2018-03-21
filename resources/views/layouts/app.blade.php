@@ -14,7 +14,7 @@
 
   <!-- Stylesheets -->
   <link href="{{ asset('favicon.ico') }}" rel="icon">
-  <link href="{{ asset('css/app.css') }}?fresh" rel="stylesheet">
+  <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
   <!--
    /$$       /$$   /$$                                            
@@ -67,7 +67,9 @@
               <div class="dropdown-menu" aria-labelledby="almanac_dropdown">
                 <a class="dropdown-item" href="{{ url(route('almanac')) }}">Almanac</a>
                 <a class="dropdown-item" href="{{ url(route('map')) }}">World Map</a>
+                <a class="dropdown-item" href="{{ url('/rules') }}">Game Rules</a>
                 <a class="dropdown-item" href="{{ url(route('tokens.index')) }}">Game Tokens</a>
+                <a class="dropdown-item" href="{{ url('/submit') }}">Submit Assets</a>
                 <a class="dropdown-item" href="https://medium.com/@BitcornCrops" target="_blank">News &amp; Updates</a>
               </div>
             </li>
@@ -102,16 +104,21 @@
   <footer class="text-muted">
     <div class="container">
       <p class="float-right">
-        <a href="#">Back to top</a>
+        <a href="#">Top ^</a>
       </p>
-      <p><a href="{{ env('GITHUB') }}" target="_blank">Check out our Github</a></p>
+      <p>
+        <a href="mailto:bitcorncrops@gmail.com" class="mr-3">Contact</a>
+        <a href="{{ env('GITHUB') }}" target="_blank" class="mr-3">Github</a>
+        <a href="{{ url('/privacy') }}" class="mr-3">Privacy</a>
+        <a href="{{ url('/terms') }}">Terms</a>
+      </p>
     </div>
   </footer>
 
 </div>
 
 <!-- Scripts -->
-<script src="{{ asset('js/app.js') }}?fresh"></script>
+<script src="{{ asset('js/app.js') }}"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-112477384-4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];

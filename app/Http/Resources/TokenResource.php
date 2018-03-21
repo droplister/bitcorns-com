@@ -14,6 +14,12 @@ class TokenResource extends Resource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'image' => str_replace('thumb', 'image', $this->thumb_url),
+            'asset' => $this->name,
+            'description' => $this->content,
+            'website' => url('/'),
+            'pgpsig' => '',
+        ];
     }
 }

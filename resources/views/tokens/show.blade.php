@@ -36,9 +36,11 @@
                     Supply
                 </div>
                 <div class="card-body">
-                    <p class="display-4{{ 'reward' === $token->type ? ' mb-0' : '' }}">{{ $token->divisible ? number_format($token->display_total) : $token->display_total }}</p>
                     @if('reward' === $token->type)
-                    <small class="lead">Circulation: {{ $reward_total }}</small>
+                    <p class="display-4 mb-0">{{ $reward_total }}</p>
+                    <small class="lead">Cap: {{ $token->divisible ? number_format($token->display_total) : $token->display_total }}</small>
+                    @else
+                    <p class="display-4">{{ $token->divisible ? number_format($token->display_total) : $token->display_total }}</p>
                     @endif
                 </div>
             </div>

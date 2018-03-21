@@ -74,13 +74,43 @@
             </div>
         </div>
         @endif
+        @if(count($upgrades))
+        <div class="row mt-5">
+            <div class="col">
+                <div class="card text-center">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="cardsTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="cards-tab" data-toggle="tab" href="#cards" role="tab" aria-controls="cards" aria-selected="true">Cards</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="cardsTabContent">
+                            <div class="tab-pane fade show active" id="cards" role="tabpanel" aria-labelledby="cards-tab">
+                                <div class="row mt-1 mb-2 text-left">
+                                @foreach($upgrades as $upgrade)
+                                    <div class="col-xs-12 col-sm-6 col-md-4 mb-2 text-center">
+                                        <h4 class="card-title">{{ $upgrade->token->name }}</h4>
+                                        <p class="card-text">{{ $upgrade->display_quantity }} of {{ $upgrade->token->total_issued }} Cards</p>
+                                        <img src="{{ str_replace('tokens', 'cards', $upgrade->token->image_url) }}" class="float-left mr-3" width="100%" />
+                                    </div>
+                                @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
         <div class="row mt-5">
             <div class="col">
                 <div class="card text-center">
                     <div class="card-header">
                         <ul class="nav nav-tabs card-header-tabs" id="activityTab" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="activity-tab" data-toggle="tab" href="#activity" role="tab" aria-controls="activity" aria-selected="true">Activity</a>
+                                <a class="nav-link active" id="activity-tab" data-toggle="tab" href="#activity" role="tab" aria-controls="activity" aria-selected="true">Wallet</a>
                             </li>
                         </ul>
                     </div>
@@ -88,7 +118,7 @@
                         <div class="tab-content" id="activityTabContent">
                             <div class="tab-pane fade show active" id="activity" role="tabpanel" aria-labelledby="activity-tab">
                                 <div class="row mt-1 mb-2 text-left">
-                                @foreach($player->balances as $balance)
+                                @foreach($balances as $balance)
                                     <div class="col-xs-12 col-sm-6 col-md-4 mb-2">
                                         <img src="{{ $balance->token->thumb_url }}" class="float-left mr-3" />
                                         <h4 class="card-title">{{ $balance->token->name }}</h4>
@@ -103,7 +133,7 @@
                         <table class="table mb-0 text-left">
                             <thead>
                                 <tr>
-                                    <th>Action</th>
+                                    <th>Activity</th>
                                     <th>Token</th>
                                     <th>Record</th>
                                     <th>Time</th>
@@ -124,5 +154,50 @@
                 </div>
             </div>
         </div>
+        @if($player->uploads()->whereNull('rejected_at')->exists())
+        <div class="row mt-5">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        Art History
+                    </div>
+                    <div class="card-body">
+                        <div id="carouselExampleControls" class="carousel mb-0 slide" data-ride="carousel" data-interval="false" data-wrap="false">
+                            <div class="carousel-inner">
+                            @foreach($player->uploads()->whereNull('rejected_at')->latest()->get() as $upload)
+                                <div class="carousel-item{{ $loop->first ? ' active' : '' }}">
+                                    <a href="{{ $upload->new_image_url }}">
+                                        <img class="d-block w-100" src="{{ $upload->new_image_url }}" /></a>
+                                    </a>
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5>{{ $upload->created_at->format('M d, Y') }}</h5>
+                                    </div>
+                                </div>
+                                @if($loop->last)
+                                <div class="carousel-item">
+                                    <a href="{{ $upload->old_image_url }}">
+                                        <img class="d-block w-100" src="{{ $upload->old_image_url }}" />
+                                    </a>
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5>{{ $player->tx->display_confirmed_at }}</h5>
+                                    </div>
+                                </div>
+                                @endif
+                            @endforeach
+                            </div>
+                            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 @endsection

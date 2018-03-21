@@ -6,6 +6,19 @@ use Illuminate\Http\Request;
 
 class TxsController extends Controller
 {
+    protected $counterparty;
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->counterparty = new \JsonRPC\Client(env('CP_API'));
+        $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -13,7 +26,20 @@ class TxsController extends Controller
      */
     public function index()
     {
-        return \App\Tx::get();
+        return $this->counterparty->execute('get_issuances', [
+            'filters' => [
+                [
+                    'field' => 'asset',
+                    'op'    => '==',
+                    'value' => 'CROPS',
+                ],
+                [
+                    'field' => 'status',
+                    'op'    => '==',
+                    'value' => 'valid',
+                ],
+            ],
+        ]);
     }
 
     /**

@@ -15,6 +15,30 @@ Route::get('/', function () {
     return redirect(route('map'));
 });
 
+Route::get('/buy', function () {
+    return view('buy');
+});
+
+Route::get('/submit', function () {
+    return view('submit');
+});
+
+Route::get('/order', function () {
+    return view('order');
+});
+
+Route::get('/terms', function () {
+    return view('terms');
+});
+
+Route::get('/privacy', function () {
+    return view('privacy');
+});
+
+Route::get('/rules', function () {
+    return view('rules');
+});
+
 Route::get('/world', function () {
     return redirect(route('map'));
 });
@@ -185,3 +209,8 @@ Route::get('/harvests/{reward}', [
     'as' => 'rewards.show',
     'uses' => 'RewardsController@show',
 ]);
+
+Route::post('/{token}/webhook', function () {
+    $updates = Telegram::getWebhookUpdates();
+    return 'ok';
+});

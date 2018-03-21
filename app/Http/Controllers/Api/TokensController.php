@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Resources\TokenResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -42,12 +41,12 @@ class TokensController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Token  $token
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(\App\Token $token)
     {
-        //
+        return new \App\Http\Resources\TokenResource($token);
     }
 
     /**

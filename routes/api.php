@@ -20,11 +20,11 @@ Route::get('/map/{group}', [
     'uses' => 'Api\GoogleMapController@show',
 ]);
 
-Route::get('/api/tokens', [
+Route::get('/tokens', [
     'uses' => 'Api\TokensController@index',
 ]);
 
-Route::get('/api/tokens/{token}', [
+Route::get('/tokens/{token}.json', [
     'uses' => 'Api\TokensController@show',
 ]);
 
