@@ -69,6 +69,16 @@ class Group extends Model
         return $this->hasMany(Player::class);
     }
 
+    /**
+     * Rewards
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function rewards()
+    {
+        return $this->belongsToMany(Reward::class)->withPivot('total', 'player_id');
+    }
+
     public function accessBalance()
     {
         $token = \App\Token::whereType('access')->first();

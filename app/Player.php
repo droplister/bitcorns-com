@@ -140,7 +140,7 @@ class Player extends Model
      */
     public function rewards()
     {
-        return $this->belongsToMany(Reward::class)->withPivot('total');
+        return $this->belongsToMany(Reward::class)->withPivot('total', 'group_id');
     }
 
     /**

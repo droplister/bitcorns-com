@@ -59,7 +59,8 @@ class UpdatePlayersRewardsTotal implements ShouldQueue
 
             $player->rewards()->sync([
                 $this->reward->id => [
-                    'total' => $credit['quantity']
+                    'group_id' => $player->group_id,
+                    'total' => $credit['quantity'],
                 ],
             ]);
 
