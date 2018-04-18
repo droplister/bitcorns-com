@@ -23,7 +23,7 @@
     </div>
     <h1 class="display-4 mt-5 mb-4">
         <span class="d-none d-sm-inline">Bitcorn</span> Farms
-        <small class="lead d-none d-sm-inline">{{ $players->count() }} Worldwide</small>
+        <small class="lead d-none d-sm-inline">{{ $players->total() }} Worldwide</small>
     </h1>
     <div class="row">
         @foreach($players as $player)
@@ -51,7 +51,7 @@
                             {{ $player->tx->display_confirmed_at }}
                         </div>
                         <div class="col text-right">
-                            Harvests: {{ $player->rewards_count }}
+                            Harvests: {{ $player->reward_count }}
                         </div>
                     </div>
                 </div>
@@ -62,5 +62,7 @@
         @endif
         @endforeach
     </div>
+    <br />
+    {!! $players->links('pagination::bootstrap-4') !!}
 </div>
 @endsection

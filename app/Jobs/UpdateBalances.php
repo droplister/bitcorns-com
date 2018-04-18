@@ -53,6 +53,16 @@ class UpdateBalances implements ShouldQueue
                 ],[
                     'quantity' => $balance['quantity'],
                 ]);
+
+                if($this->token->type == 'access' && $balance['quantity'] == 0)
+                {
+                    $player->update(['latitude' => null, 'longitude' => null]);
+                }
+
+                if($player->address === env('BURN_ADDRESS'))
+                {
+                    $this->token->update(['total_burned' => $balance['quantity']]);
+                }
             }
         }
     }

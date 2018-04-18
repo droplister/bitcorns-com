@@ -42,7 +42,7 @@
                         <div class="tab-content" id="playerTabContent">
                             <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                                 <h5 class="card-title">{{ $player->display_name }}</h5>
-                                <p class="card-text">{{ $player->description }}</p>
+                                <p class="card-text">{{ $player->display_description }}</p>
                                 <a href="https://xchain.io/address/{{ $player->address }}" class="btn btn-primary" target="_blank"><i class="fa fa-search"></i> View Address</a>
                             </div>
                             <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
@@ -90,10 +90,11 @@
                             <div class="tab-pane fade show active" id="cards" role="tabpanel" aria-labelledby="cards-tab">
                                 <div class="row mt-1 mb-2 text-left">
                                 @foreach($upgrades as $upgrade)
-                                    <div class="col-xs-12 col-sm-6 col-md-4 mb-2 text-center">
-                                        <h4 class="card-title">{{ $upgrade->token->name }}</h4>
-                                        <p class="card-text">{{ $upgrade->display_quantity }} of {{ $upgrade->token->total_issued }} Cards</p>
-                                        <img src="{{ str_replace('tokens', 'cards', $upgrade->token->image_url) }}" class="float-left mr-3" width="100%" />
+                                    <div class="col-xs-12 col-sm-6 col-md-4 mb-4 text-center">
+                                        <h4 class="card-title">{{ $upgrade->token->long_name ? $upgrade->token->long_name : $upgrade->token->name }}</h4>
+                                        <p class="card-text">Issuance: {{ $upgrade->token->total_issued }}</p>
+                                        <p class="card-text"><a href="{{ url(route('tokens.show', ['slug' => $upgrade->token->name])) }}"><img src="{{ str_replace('tokens', 'cards', $upgrade->token->image_url) }}" width="100%" /></a></p>
+                                        <h4 class="card-title mt-3">x {{ $upgrade->display_quantity }}</h4>
                                     </div>
                                 @endforeach
                                 </div>
@@ -119,11 +120,13 @@
                             <div class="tab-pane fade show active" id="activity" role="tabpanel" aria-labelledby="activity-tab">
                                 <div class="row mt-1 mb-2 text-left">
                                 @foreach($balances as $balance)
+                                    @if($balance->token->type == 'access' || $balance->token->type == 'reward')
                                     <div class="col-xs-12 col-sm-6 col-md-4 mb-2">
                                         <img src="{{ $balance->token->thumb_url }}" class="float-left mr-3" />
                                         <h4 class="card-title">{{ $balance->token->name }}</h4>
                                         <p class="card-text">{{ $balance->display_quantity }}</p>
                                     </div>
+                                    @endif
                                 @endforeach
                                 </div>
                             </div>

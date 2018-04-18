@@ -23,29 +23,29 @@ class PlayersController extends Controller
         switch($sort) {
             case 'access':
                 $token = \App\Token::whereType('access')->first();
-                $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc')->get();
+                $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc');
                 break;
             case 'reward':
                 $token = \App\Token::whereType('reward')->first();
-                $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc')->get();
+                $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc');
                 break;
             case 'rewards':
-                $players = \App\Player::whereHasAccess()->orderBy('rewards_count', 'desc')->orderBy('processed_at', 'asc')->get();
+                $players = \App\Player::whereHasAccess()->orderBy('rewards_count', 'desc')->orderBy('processed_at', 'asc');
                 break;
             case 'rewards-total':
-                $players = \App\Player::whereHasAccess()->orderBy('rewards_total', 'desc')->get();
+                $players = \App\Player::whereHasAccess()->orderBy('rewards_total', 'desc');
                 break;
             case 'no-access':
-                $players = \App\Player::whereHasNoAccess()->orderBy('processed_at', 'desc')->get();
+                $players = \App\Player::whereHasNoAccess()->orderBy('processed_at', 'desc');
                 break;
             case 'newest':
-                $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'desc')->get();
+                $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'desc');
                 break;
             case 'oldest':
-                $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'asc')->get();
+                $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'asc');
                 break;
             case 'updated':
-                $players = \App\Player::whereHasAccess()->orderBy('updated_at', 'desc')->get();
+                $players = \App\Player::whereHasAccess()->orderBy('updated_at', 'desc');
                 break;
             default:
                 \Exception('Sort Validation Failure');
@@ -54,8 +54,10 @@ class PlayersController extends Controller
 
         if($request->has('q'))
         {
-             $players = \App\Player::whereHasAccess()->where('name', 'like', '%' . $request->q . '%')->orWhere('address', 'like', '%' . $request->q . '%')->get();
+             $players = \App\Player::whereHasAccess()->where('name', 'like', '%' . $request->q . '%')->orWhere('address', 'like', '%' . $request->q . '%');
         }
+
+        $players = $players->paginate(60);
 
         return view('players.index', compact('players', 'sort'));
     }
@@ -68,13 +70,13 @@ class PlayersController extends Controller
      */
     public function show(\App\Player $player)
     {
-        $balances = $player->balances()->whereHas('token', function($token){
-            $token->whereType('access');
-        })->get();
+        $balances = $player->balances()->get();
 
         $upgrades = $player->balances()->whereHas('token', function($token){
-            $token->whereType('upgrade');
-        })->get();
+                $token->whereType('upgrade');
+                $token->wherePublic('1');
+            })->where('quantity', '>', 0)
+            ->get();
 
         return view('players.show', compact('player', 'balances', 'upgrades'));
     }

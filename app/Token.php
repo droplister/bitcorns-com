@@ -12,7 +12,7 @@ class Token extends Model
      * @var array
      */
     protected $fillable = [
-        'type', 'long_name', 'name', 'issuer', 'content', 'description', 'image_url', 'thumb_url', 'total_issued', 'divisible', 'locked',
+        'type', 'long_name', 'name', 'issuer', 'content', 'description', 'image_url', 'thumb_url', 'total_issued', 'total_burned', 'divisible', 'locked', 'public',
     ];
 
     /**
@@ -21,9 +21,56 @@ class Token extends Model
      * @var array
      */
     protected $appends = [
+        'total_supply',
+        'normalized_total', 'normalized_burn', 'normalized_supply',
         'display_name', 'display_total', 'display_image_url', 'display_thumb_url',
         'url', 'edit_url', 'explorer_url',
     ];
+
+    /**
+     * Total Supply
+     *
+     * @return string
+     */
+    public function getTotalSupplyAttribute()
+    {
+        return $this->total_issued - $this->total_burned;
+    }
+
+    /**
+     * Normalized Total
+     *
+     * @return string
+     */
+    public function getNormalizedTotalAttribute()
+    {
+        return $this->divisible ? (float) fromSatoshi($this->total_issued) : $this->total_issued;
+    }
+
+    /**
+     * Normalized Burned
+     *
+     * @return string
+     */
+    public function getNormalizedBurnedAttribute()
+    {
+        return $this->divisible ? (float) fromSatoshi($this->total_burned) : $this->total_burned;
+    }
+
+    /**
+     * Normalized Supply
+     *
+     * @return string
+     */
+    public function getNormalizedSupplyAttribute()
+    {
+        if($this->type == 'reward')
+        {
+            return $this->rewards()->sum('total') - $this->total_burned;
+        }
+
+        return $this->divisible ? (float) fromSatoshi($this->total_issued - $this->total_burned) : $this->total_issued - $this->total_burned;
+    }
 
     /**
      * Display Name

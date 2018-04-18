@@ -91,7 +91,7 @@
                             {{ $player->tx->display_confirmed_at }}
                         </div>
                         <div class="col text-right">
-                            Harvests: {{ $player->rewards_count }}
+                            Harvests: {{ $player->reward_count }}
                         </div>
                     </div>
                 </div>

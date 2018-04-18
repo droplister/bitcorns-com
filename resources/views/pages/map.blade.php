@@ -21,7 +21,7 @@
               </span>
           </div>
           <div class="col-sm-4 mt-5">
-              <h3>Harvest: April 1<sup>st</sup></h3>
+              <h3>Harvest: July 1<sup>st</sup></h3>
               <span class="d-block lead">
                 <a href="{{ url(route('almanac')) }}">The Bitcorn Almanac &raquo;</a>
               </span>

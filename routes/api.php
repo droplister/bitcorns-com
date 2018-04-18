@@ -20,6 +20,14 @@ Route::get('/map/{group}', [
     'uses' => 'Api\GoogleMapController@show',
 ]);
 
+Route::get('/cards', [
+    'uses' => 'Api\CardsController@index',
+]);
+
+Route::get('/cards/{card}', [
+    'uses' => 'Api\CardsController@show',
+]);
+
 Route::get('/tokens', [
     'uses' => 'Api\TokensController@index',
 ]);
@@ -42,6 +50,14 @@ Route::get('/farms', [
 
 Route::get('/farms/{player}', [
     'uses' => 'Api\PlayersController@show',
+]);
+
+Route::get('/coops', [
+    'uses' => 'Api\GroupsController@index',
+]);
+
+Route::get('/coops/{group}', [
+    'uses' => 'Api\GroupsController@show',
 ]);
 
 Route::get('/harvests', [

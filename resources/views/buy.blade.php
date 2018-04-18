@@ -14,7 +14,7 @@
                 <h4 class="my-0 font-weight-normal">Basic Access</h4>
             </div>
             <div class="card-body">
-                <h1 class="card-title pricing-card-title">$7.99</h1>
+                <h1 class="card-title pricing-card-title">$6.99</h1>
                 <ul class="list-unstyled mt-3 mb-3">
                     <li>0.001 CROPS</li>
                 </ul>
@@ -27,7 +27,7 @@
                 <h4 class="my-0 font-weight-normal">Upload Access</h4>
             </div>
             <div class="card-body">
-                <h1 class="card-title pricing-card-title">$79</h1>
+                <h1 class="card-title pricing-card-title">$69</h1>
                 <ul class="list-unstyled mt-3 mb-3">
                     <li>0.01 CROPS</li>
                 </ul>
@@ -40,7 +40,7 @@
                 <h4 class="my-0 font-weight-normal">Co-Op Access</h4>
             </div>
             <div class="card-body">
-                <h1 class="card-title pricing-card-title">$999</h1>
+                <h1 class="card-title pricing-card-title">Sold Out</h1>
                 <ul class="list-unstyled mt-3 mb-3">
                     <li>0.1 CROPS</li>
                 </ul>

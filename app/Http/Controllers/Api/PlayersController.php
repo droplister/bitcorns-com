@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Player;
-use App\Http\Resources\PlayerResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -16,28 +14,9 @@ class PlayersController extends Controller
      */
     public function index()
     {
-        return PlayerResource::collection(Player::whereNotNull('latitude')->whereHasAccess()->get());
-    }
+        $players = \App\Player::get();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+        return \App\Http\Resources\PlayerCollection::collection($players);
     }
 
     /**
@@ -46,42 +25,8 @@ class PlayersController extends Controller
      * @param  \App\Player $player
      * @return \Illuminate\Http\Response
      */
-    public function show(Player $player)
+    public function show(\App\Player $player)
     {
-        return new PlayerResource($player);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        return new \App\Http\Resources\PlayerResource($player);
     }
 }

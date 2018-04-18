@@ -54,8 +54,9 @@ class UpdateRewards implements ShouldQueue
             $reward = \App\Reward::firstOrCreate([
                 'token_id' => $reward_token->id,
                 'tx_id' => $tx->id,
-                'total' => $reward_token->divisible ? fromSatoshi($reward_token->quantity * $this_reward['quantity_per_unit']) : $reward_token->quantity * $this_reward['quantity_per_unit'],
-                'per_token' => $this_reward['quantity_per_unit'],
+            ],[
+                'total' => fromSatoshi($access_token->quantity) * fromSatoshi($this_reward['quantity_per_unit']),
+                'per_token' => fromSatoshi($this_reward['quantity_per_unit']),
             ]);
 
             if($reward->wasRecentlyCreated)

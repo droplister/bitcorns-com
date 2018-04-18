@@ -17,7 +17,7 @@
         <div class="card-body">
             <h4 class="card-title">
                 <a href="{{ $token->url }}">
-                    {{ $token->name }}
+                    {{ $token->long_name ? $token->long_name : $token->name }}
                     <img class="float-left mr-2" src="{{ $token->display_thumb_url }}" alt="{{ $token->name }} Icon" height="30" width="30" />
                 </a>
             </h4>

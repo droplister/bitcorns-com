@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', $token->name)
+@section('title', $token->long_name ? $token->long_name : $token->name)
 
 @section('description', $token->content)
 
 @section('content')
 <div class="container">
     <h1 class="display-4 mt-5 mb-5">
-        {{ $token->name }} <small class="lead d-none d-sm-inline">{{ ucfirst($token->type) }} Token</small>
-        <img src="{{ $token->display_thumb_url }}" class="float-left mr-3" />
+        {{ $token->long_name ? $token->long_name : $token->name }} <small class="lead d-none d-sm-inline">{{ ucfirst($token->type) }} Token</small>
+        <img src="{{ $token->display_thumb_url }}" class="float-left mr-3" height="60" />
     </h1>
     <div class="card mb-4">
         <div class="card-header">
@@ -37,10 +37,10 @@
                 </div>
                 <div class="card-body">
                     @if('reward' === $token->type)
-                    <p class="display-4 mb-0">{{ $reward_total }}</p>
+                    <p class="display-4 mb-0">{{ number_format($token->normalized_supply) }}</p>
                     <small class="lead">Cap: {{ $token->divisible ? number_format($token->display_total) : $token->display_total }}</small>
                     @else
-                    <p class="display-4">{{ $token->divisible ? number_format($token->display_total) : $token->display_total }}</p>
+                    <p class="display-4">{{ $token->normalized_supply }}</p>
                     @endif
                 </div>
             </div>

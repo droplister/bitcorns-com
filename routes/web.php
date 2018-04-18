@@ -15,6 +15,10 @@ Route::get('/', function () {
     return redirect(route('map'));
 });
 
+Route::get('/api', function () {
+    return view('api');
+});
+
 Route::get('/buy', function () {
     return view('buy');
 });

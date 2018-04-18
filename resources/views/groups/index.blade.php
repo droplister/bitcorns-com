@@ -21,6 +21,7 @@
                         <th class="d-none d-sm-block">Description</th>
                         <th>Farms</th>
                         <th>Crops</th>
+                        <th>Harvested</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,6 +31,7 @@
                         <td class="d-none d-sm-block">{{ $group->description }}</td>
                         <td>{{ $group->players_count }}</td>
                         <td>{{ $group->accessBalance() }}</td>
+                        <td>{{ $group->rewards->sum('pivot.total') }}</td>
                     </tr>
                     @endforeach
                 </tbody>

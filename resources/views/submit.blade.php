@@ -19,14 +19,17 @@
     <p>1) Image must be 375 x 520 pixels.</p>
     <p>2) Issuance must be LOCKED.</p>
     <p>3) Asset must not be divisible.</p>
-    <p>4) No NSFW content.</p>
+    <p>4) No subassets.</p>
+    <p>5) No NSFW content.</p>
+    <p>6) No "pre-selling" before approval.</p>
     <p><strong>Submission Fee:</strong></p>
-    <p>Burn 500 BITCORN to this address: 1BitcornSubmissionFeeAddressgL5Xg.</p>
+    <p>Burn <s>500</s> 1000 BITCORN to this address: 1BitcornSubmissionFeeAddressgL5Xg.</p>
     <p><strong>After Acceptance:</strong></p>
     <p>Send 1 of your tokens here: 1BitcornCropsMuseumAddressy149ZDr.</p>
     <p><strong>Creative Assets:</strong></p>
-    <p>Here is a template and other assets that you can use, but you don't have to use them.</p>
+    <p>Here are templates and other assets that you should use. All cards must have the "Bitcorn Border".</p>
     <p>PSD and Font: <a href="https://bitcorns.com/assets/BitcornCardTemplatePSDfonts.zip">BitcornCardTemplatePSDfonts.zip</a></p>
+    <p>Border-Only PSD: <a href="https://bitcorns.com/assets/BitcornCardTemplateBorderOnly.psd">BitcornCardTemplateBorderOnly.psd</a></p>
     <br />
     <div class="card mb-4">
         <div class="card-body">

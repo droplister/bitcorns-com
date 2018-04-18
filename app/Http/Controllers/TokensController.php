@@ -23,7 +23,7 @@ class TokensController extends Controller
      */
     public function index()
     {
-        $tokens = \App\Token::orderBy('type', 'asc')->get();
+        $tokens = \App\Token::wherePublic(1)->orderBy('type', 'asc')->get();
 
         return view('tokens.index', compact('tokens'));
     }
@@ -38,10 +38,9 @@ class TokensController extends Controller
     {
         $holders = $token->balances()->nonZero()->orderBy('quantity', 'desc')->take(20)->get();
         $holders_count = $token->balances()->nonZero()->count();
-        $reward_total = 'reward' === $token->type ? $token->rewards()->sum('total') : 0;
         $txs_count = $token->txs->count();
 
-        return view('tokens.show', compact('token', 'holders', 'holders_count', 'reward_total', 'txs_count'));
+        return view('tokens.show', compact('token', 'holders', 'holders_count', 'txs_count'));
     }
 
     /**

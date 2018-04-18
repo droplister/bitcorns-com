@@ -30,6 +30,25 @@ class Group extends Model
     ];
 
     /**
+     * These attributes are dynamically added.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'url',
+    ];
+
+    /**
+     * Url
+     *
+     * @return string
+     */
+    public function getUrlAttribute()
+    {
+        return route('groups.show', ['group' => $this->slug]);
+    }
+
+    /**
      * Balances
      * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

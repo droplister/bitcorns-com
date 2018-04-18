@@ -30,7 +30,8 @@ class Player extends Model
      * @var array
      */
     protected $appends = [
-        'display_name', 'display_image_url', 'display_thumb_url', 'map_radius', 'url',
+        'display_name', 'display_description', 'display_image_url', 'display_thumb_url',
+        'reward_count', 'map_radius', 'url',
     ];
 
     /**
@@ -41,6 +42,16 @@ class Player extends Model
     public function getDisplayNameAttribute()
     {
         return $this->accessBalance()->quantity ? $this->name : 'NO CROPPER';
+    }
+
+    /**
+     * Display Description
+     *
+     * @var string
+     */
+    public function getDisplayDescriptionAttribute()
+    {
+        return $this->accessBalance()->quantity ? $this->description : 'This address has no CROPS and is therefore not playing.';
     }
 
     /**
@@ -65,6 +76,22 @@ class Player extends Model
         $url = $this->accessBalance()->quantity ? $this->image_url : env('NO_ACCESS_IMAGE_URL');
 
         return str_replace('storage/custom', 'images/thumb', $url);
+    }
+
+    /**
+     * Reward Count
+     *
+     * @var string
+     */
+    public function getRewardCountAttribute()
+    {
+        $rewards = \DB::table('player_reward')
+            ->where('player_id', '=', $this->id)
+            ->select('reward_id', 'player_id')
+            ->groupBy('reward_id', 'player_id')
+            ->get();
+
+        return count($rewards);
     }
 
     /**

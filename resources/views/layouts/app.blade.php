@@ -63,7 +63,7 @@
               <a class="nav-link" href="{{ url(route('groups.index')) }}">Coops</a>
             </li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="{{ url(route('faq')) }}" id="almanac_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pages</a>
+              <a class="nav-link dropdown-toggle" href="#" id="almanac_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pages</a>
               <div class="dropdown-menu" aria-labelledby="almanac_dropdown">
                 <a class="dropdown-item" href="{{ url(route('almanac')) }}">Almanac</a>
                 <a class="dropdown-item" href="{{ url(route('map')) }}">World Map</a>

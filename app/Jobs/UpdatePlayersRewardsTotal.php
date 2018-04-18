@@ -57,15 +57,15 @@ class UpdatePlayersRewardsTotal implements ShouldQueue
         {
             $player = \App\Player::whereAddress($credit['address'])->first();
 
-            $player->rewards()->sync([
-                $this->reward->id => [
-                    'group_id' => $player->group_id,
-                    'total' => $credit['quantity'],
-                ],
+            if($credit['quantity'] === 0) continue;
+
+            $player->rewards()->save($this->reward, [
+                'group_id' => $player->group_id,
+                'total' => $credit['quantity'],
             ]);
 
             $player->update([
-                'rewards_total' => $player->rewards()->sum('total'),
+                'rewards_total' => $player->rewards()->sum('player_reward.total'),
             ]);
         }
     }

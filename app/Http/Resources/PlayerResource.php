@@ -14,23 +14,39 @@ class PlayerResource extends Resource
      */
     public function toArray($request)
     {
+        $tokens = $this->balances()->whereHas('token', function($token){
+                $token->whereType('access')->orWhere('type', '=', 'reward');
+            })->where('quantity', '>', 0)
+            ->get();
+
+        $upgrades = $this->balances()->whereHas('token', function($token){
+                $token->whereType('upgrade')->wherePublic('1');
+            })->where('quantity', '>', 0)
+            ->get();
+
+        $rewards = \DB::table('player_reward')
+            ->where('player_id', '=', $this->id)
+            ->select('reward_id', 'player_id', \DB::raw('SUM(player_reward.total) as total'), 'txes.tx_index', 'txes.created_at', 'txes.confirmed_at')
+            ->groupBy('reward_id', 'player_id')
+            ->join('rewards', 'reward_id', '=', 'rewards.id')
+            ->join('txes', 'tx_id', '=', 'txes.id')
+            ->get();
+
         return [
-            'name' => $this->name,
-            'date' => $this->tx->display_confirmed_at,
-            'description' => $this->description,
-            'href' => $this->url,
-            'image' => $this->display_image_url,
-            'thumb' => $this->display_thumb_url,
-            'options' => [
-                'editable' => false,
-                'strokeColor' => '#000000',
-                'fillColor' => '#FFFFFF',
-            ],
+            'name' => $this->display_name,
+            'address' => $this->address,
+            'description' => $this->display_description,
+            'link' => $this->url,
+            'farm' => $this->display_image_url,
+            'access' => $this->accessBalance()->quantity ? true : false,
+            'coop' => new \App\Http\Resources\PlayerGroupResource($this->group),
+            'tokens' => \App\Http\Resources\PlayerBalanceCollection::collection($tokens),
+            'cards' => \App\Http\Resources\PlayerBalanceCollection::collection($upgrades),
+            'harvests' => \App\Http\Resources\PlayerRewardsCollection::collection($rewards),
             'position' => [
                 'lat' => (float) $this->latitude,
                 'lng' => (float) $this->longitude,
             ],
-            'radius' => $this->map_radius,
         ];
     }
 }
