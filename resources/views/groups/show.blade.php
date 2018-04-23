@@ -66,7 +66,7 @@
         </div>
     </div>
     <div class="row mt-5">
-        @foreach($group->players as $player)
+        @foreach($players as $player)
         <div class="col-12 col-sm-6 col-md-4 mt-4 mb-2">
             <div class="card">
                 <a href="{{ url(route('players.show', ['show' => $player->address])) }}">
@@ -91,7 +91,7 @@
                             {{ $player->tx->display_confirmed_at }}
                         </div>
                         <div class="col text-right">
-                            Harvests: {{ $player->reward_count }}
+                            Harvests: {{ $player->rewards_count }}
                         </div>
                     </div>
                 </div>

@@ -51,7 +51,7 @@
                             {{ $player->tx->display_confirmed_at }}
                         </div>
                         <div class="col text-right">
-                            Harvests: {{ $player->reward_count }}
+                            Harvests: {{ $player->rewards_count }}
                         </div>
                     </div>
                 </div>
@@ -63,6 +63,6 @@
         @endforeach
     </div>
     <br />
-    {!! $players->links('pagination::bootstrap-4') !!}
+    {!! $players->appends(['sort' => $sort])->links('pagination::bootstrap-4') !!}
 </div>
 @endsection

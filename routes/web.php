@@ -19,6 +19,10 @@ Route::get('/api', function () {
     return view('api');
 });
 
+Route::get('/faq', function () {
+    return redirect('rules');
+});
+
 Route::get('/buy', function () {
     return view('buy');
 });
@@ -59,11 +63,6 @@ Route::get('/almanac', [
     'uses' => 'PagesController@almanac',
 ]);
 
-Route::get('/faq', [
-    'as' => 'faq',
-    'uses' => 'PagesController@faq',
-]);
-
 Route::get('/sale', [
     'as' => 'sale',
     'uses' => 'PagesController@sale',
@@ -72,6 +71,16 @@ Route::get('/sale', [
 Route::get('/map', [
     'as' => 'map',
     'uses' => 'PagesController@map',
+]);
+
+Route::get('/cards', [
+    'as' => 'cards.index',
+    'uses' => 'CardsController@index',
+]);
+
+Route::get('/cards/{token}', [
+    'as' => 'cards.show',
+    'uses' => 'CardsController@show',
 ]);
 
 Route::get('/tokens', [

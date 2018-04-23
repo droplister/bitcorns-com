@@ -31,7 +31,7 @@ class Player extends Model
      */
     protected $appends = [
         'display_name', 'display_description', 'display_image_url', 'display_thumb_url',
-        'reward_count', 'map_radius', 'url',
+        'map_radius', 'url',
     ];
 
     /**
@@ -76,22 +76,6 @@ class Player extends Model
         $url = $this->accessBalance()->quantity ? $this->image_url : env('NO_ACCESS_IMAGE_URL');
 
         return str_replace('storage/custom', 'images/thumb', $url);
-    }
-
-    /**
-     * Reward Count
-     *
-     * @var string
-     */
-    public function getRewardCountAttribute()
-    {
-        $rewards = \DB::table('player_reward')
-            ->where('player_id', '=', $this->id)
-            ->select('reward_id', 'player_id')
-            ->groupBy('reward_id', 'player_id')
-            ->get();
-
-        return count($rewards);
     }
 
     /**

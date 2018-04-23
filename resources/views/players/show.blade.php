@@ -93,7 +93,7 @@
                                     <div class="col-xs-12 col-sm-6 col-md-4 mb-4 text-center">
                                         <h4 class="card-title">{{ $upgrade->token->long_name ? $upgrade->token->long_name : $upgrade->token->name }}</h4>
                                         <p class="card-text">Issuance: {{ $upgrade->token->total_issued }}</p>
-                                        <p class="card-text"><a href="{{ url(route('tokens.show', ['slug' => $upgrade->token->name])) }}"><img src="{{ str_replace('tokens', 'cards', $upgrade->token->image_url) }}" width="100%" /></a></p>
+                                        <p class="card-text"><a href="{{ url(route('cards.show', ['token' => $upgrade->token->name])) }}"><img src="{{ str_replace('tokens', 'cards', $upgrade->token->image_url) }}" width="100%" /></a></p>
                                         <h4 class="card-title mt-3">x {{ $upgrade->display_quantity }}</h4>
                                     </div>
                                 @endforeach

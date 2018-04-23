@@ -85,7 +85,9 @@ class GroupsController extends Controller
      */
     public function show(\App\Group $group)
     {
-        return view('groups.show', compact('group'));
+        $players = $group->players()->withCount('rewards')->get();
+
+        return view('groups.show', compact('group', 'players'));
     }
 
     /**

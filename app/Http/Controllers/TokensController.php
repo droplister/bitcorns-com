@@ -23,7 +23,7 @@ class TokensController extends Controller
      */
     public function index()
     {
-        $tokens = \App\Token::wherePublic(1)->orderBy('type', 'asc')->get();
+        $tokens = \App\Token::wherePublic(1)->where('type', '!=', 'upgrade')->orderBy('type', 'asc')->get();
 
         return view('tokens.index', compact('tokens'));
     }
@@ -36,6 +36,8 @@ class TokensController extends Controller
      */
     public function show(\App\Token $token)
     {
+        if($token->type == 'upgrade') return redirect(route('cards.show', ['token' => $token->name]));
+
         $holders = $token->balances()->nonZero()->orderBy('quantity', 'desc')->take(20)->get();
         $holders_count = $token->balances()->nonZero()->count();
         $txs_count = $token->txs->count();

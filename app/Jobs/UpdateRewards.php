@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use JsonRPC\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,7 +21,7 @@ class UpdateRewards implements ShouldQueue
      */
     public function __construct()
     {
-        $this->counterparty = new Client(env('CP_API'));
+        $this->counterparty = new \JsonRPC\Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
     }
 
@@ -47,6 +46,7 @@ class UpdateRewards implements ShouldQueue
 
         foreach($rewards as $this_reward)
         {
+            // Sanity Checks
             if($this_reward['source'] !== $access_token->issuer || $this_reward['dividend_asset'] !== $reward_token->name || $this_reward['status'] !== 'valid') continue;
 
             $tx = \App\Tx::whereTxHash($this_reward['tx_hash'])->first();
@@ -55,7 +55,7 @@ class UpdateRewards implements ShouldQueue
                 'token_id' => $reward_token->id,
                 'tx_id' => $tx->id,
             ],[
-                'total' => fromSatoshi($access_token->quantity) * fromSatoshi($this_reward['quantity_per_unit']),
+                'total' => fromSatoshi($access_token->total_issued) * fromSatoshi($this_reward['quantity_per_unit']),
                 'per_token' => fromSatoshi($this_reward['quantity_per_unit']),
             ]);
 

@@ -67,6 +67,7 @@
               <div class="dropdown-menu" aria-labelledby="almanac_dropdown">
                 <a class="dropdown-item" href="{{ url(route('almanac')) }}">Almanac</a>
                 <a class="dropdown-item" href="{{ url(route('map')) }}">World Map</a>
+                <a class="dropdown-item" href="{{ url(route('cards.index')) }}">Game Cards</a>
                 <a class="dropdown-item" href="{{ url('/rules') }}">Game Rules</a>
                 <a class="dropdown-item" href="{{ url(route('tokens.index')) }}">Game Tokens</a>
                 <a class="dropdown-item" href="{{ url('/submit') }}">Submit Assets</a>
