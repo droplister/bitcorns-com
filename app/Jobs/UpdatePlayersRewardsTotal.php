@@ -91,5 +91,12 @@ class UpdatePlayersRewardsTotal implements ShouldQueue
                 'rewards_total' => $player->rewards()->sum('player_reward.total'),
             ]);
         }
+
+        // Implicit Reward
+        $genesis = \App\Player::whereAddress(env('GENESIS_ADDRESS'))->first();
+        $genesis->rewards()->save($this->reward, [
+            'group_id' => $genesis->group_id,
+            'total' => $this->reward->total - $this->reward->players->sum('pivot.total'),
+        ]);
     }
 }

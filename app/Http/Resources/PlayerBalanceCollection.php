@@ -16,7 +16,7 @@ class PlayerBalanceCollection extends Resource
     {
         return [
             'name' => $this->token->display_name,
-            'balance' => (int) str_replace(',', '', $this->display_quantity),
+            'balance' => (float) str_replace(',', '', $this->display_quantity),
         ];
     }
 }

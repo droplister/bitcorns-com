@@ -36,6 +36,10 @@ Route::get('/tokens/{token}.json', [
     'uses' => 'Api\TokensController@show',
 ]);
 
+Route::get('/tokens/{token}/supply', [
+    'uses' => 'Api\SupplyController@show',
+]);
+
 Route::get('/txs', [
     'uses' => 'Api\TxsController@index',
 ]);
