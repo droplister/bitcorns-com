@@ -23,7 +23,10 @@ class TokensController extends Controller
      */
     public function index()
     {
-        $tokens = \App\Token::wherePublic(1)->where('type', '!=', 'upgrade')->orderBy('type', 'asc')->get();
+        $tokens = \App\Token::where('public', '=', 1)
+            ->where('type', '!=', 'upgrade')
+            ->orderBy('type', 'asc')
+            ->get();
 
         return view('tokens.index', compact('tokens'));
     }
@@ -36,13 +39,15 @@ class TokensController extends Controller
      */
     public function show(\App\Token $token)
     {
-        if($token->type == 'upgrade') return redirect(route('cards.show', ['token' => $token->name]));
+        if($token->type == 'upgrade')
+        {
+            return redirect(route('cards.show', ['token' => $token->name]));
+        }
 
-        $holders = $token->balances()->nonZero()->orderBy('quantity', 'desc')->take(20)->get();
-        $holders_count = $token->balances()->nonZero()->count();
+        $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc')->paginate(20);
         $txs_count = $token->txs->count();
 
-        return view('tokens.show', compact('token', 'holders', 'holders_count', 'txs_count'));
+        return view('tokens.show', compact('token', 'players', 'txs_count'));
     }
 
     /**

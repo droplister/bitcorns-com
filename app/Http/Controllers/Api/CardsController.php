@@ -14,7 +14,7 @@ class CardsController extends Controller
      */
     public function index()
     {
-        $cards = \App\Token::whereType('upgrade')->wherePublic(1)->get();
+        $cards = \App\Token::whereType('upgrade')->wherePublic(1)->oldest()->get();
 
         return \App\Http\Resources\UpgradeTokenCollection::collection($cards);
     }

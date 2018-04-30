@@ -57,7 +57,7 @@
                             Holders
                         </div>
                         <div class="card-body">
-                            <p class="card-text">{{ $holders_count }}</p>
+                            <p class="card-text">{{ $players->total() }}</p>
                         </div>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
             </div>
         </div>
     </div>
-    @if($holders_count)
+    @if($players->total())
     <div class="card mb-4">
         <div class="card-header">
             Leaderboard
@@ -82,12 +82,12 @@
         <div class="table-responsive">
             <table class="table mb-0">
                 <tbody>
-                    @foreach($holders as $holder)
-                    <tr>
+                    @foreach($players as $player)
+                    <tr style="{{ $card->name === 'DRYASABONE' && $player->isDAAB() ? 'font-weight: bold; color: red;' : '' }}">
                         <th scope="row" class="pl-4">{{ $loop->iteration }}.</th>
-                        <td>{{ $card->name === 'DRYASABONE' && $holder->player->isDAAB() ? '[DRY] ' : '' }}<a href="{{ $holder->player->url }}">{{ $holder->player->name }}</a></td>
-                        <td class="text-muted d-none d-sm-block"><small>{{ $holder->player->address }}</small></td>
-                        <td class="text-right">{{ $holder->display_quantity }} <span class="d-none d-sm-inline">{{ $holder->token->name }}</span></td>
+                        <td><a href="{{ $player->url }}" style="{{ $card->name === 'DRYASABONE' && $player->isDAAB() ? 'color: red;' : '' }}">{{ $player->name }}</a></td>
+                        <td class="text-muted d-none d-sm-block"><small style="{{ $card->name === 'DRYASABONE' && $player->isDAAB() ? 'font-weight: bold; color: red;' : '' }}">{{ $player->address }}</small></td>
+                        <td class="text-right">{{ number_format($player->pivot->quantity) }} <span class="d-none d-sm-inline">{{ $card->name }}</span></td>
                     </tr>
                     @endforeach
                 </tbody>

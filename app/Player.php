@@ -256,7 +256,7 @@ class Player extends Model
     {
         $balance = $this->balances()->whereHas('token', function ($query) use ($token_name) {
             $query->where('name', '=', $token_name);
-        })->first();
+        })->where('quantity', '>', 0)->first();
 
         return $balance ? true : false;
     }
@@ -268,15 +268,19 @@ class Player extends Model
      */
     public function isDAAB()
     {
-        $token = \App\Token::whereName('DRYASABONE')->first();
+        $token = \App\Token::whereName(env('HARM_TOKEN_NAME'))->first();
 
-        $balances = $token->balances()->nonZero()->orderBy('quantity', 'desc')->orderBy('player_id', 'desc')->get();
+        $players = $token->players()
+            ->whereHasAccess()
+            ->orderBy('quantity', 'desc')
+            ->orderBy('player_id', 'desc')
+            ->get();
 
-        foreach($balances as $balance)
+        foreach($players as $player)
         {
-            if($balance->player->hasBalance('FOREVERMOIST')) continue;
+            if($player->hasBalance(env('SAVE_TOKEN_NAME'))) continue;
 
-            return $this->address === $balance->player->address ? true : false;
+            return $this->address === $player->address ? true : false;
         }
 
         return false;

@@ -51,7 +51,7 @@
                     Holders
                 </div>
                 <div class="card-body">
-                    <p class="display-4">{{ $holders_count }}</p>
+                    <p class="display-4">{{ $players->total() }}</p>
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@
             </div>
         </div>
     </div>
-    @if($holders_count)
+    @if($players->total())
     <div class="card mb-4">
         <div class="card-header">
             Leaderboard
@@ -74,12 +74,12 @@
         <div class="table-responsive">
             <table class="table mb-0">
                 <tbody>
-                    @foreach($holders as $holder)
+                    @foreach($players as $player)
                     <tr>
                         <th scope="row" class="pl-4">{{ $loop->iteration }}.</th>
-                        <td><a href="{{ $holder->player->url }}">{{ $holder->player->name }}</a></td>
-                        <td class="text-muted d-none d-sm-block"><small>{{ $holder->player->address }}</small></td>
-                        <td class="text-right">{{ $holder->display_quantity }} {{ $holder->token->name }}</td>
+                        <td><a href="{{ $player->url }}">{{ $player->name }}</a></td>
+                        <td class="text-muted d-none d-sm-block"><small>{{ $player->address }}</small></td>
+                        <td class="text-right">{{ $token->divisible ? fromSatoshi($player->pivot->quantity) : number_format($player->pivot->quantity) }} {{ $token->name }}</td>
                     </tr>
                     @endforeach
                 </tbody>
