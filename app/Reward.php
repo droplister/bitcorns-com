@@ -22,7 +22,7 @@ class Reward extends Model
      */
     public function players()
     {
-        return $this->belongsToMany(Player::class)->withPivot('total', 'group_id');
+        return $this->belongsToMany(Player::class)->withPivot('total', 'group_id', 'dry');
     }
 
     /**
@@ -43,5 +43,13 @@ class Reward extends Model
     public function tx()
     {
         return $this->belongsTo(Tx::class);
+    }
+
+    /**
+     * Tx
+     */
+    public function scopeNotDry($query)
+    {
+        return $query->where('dry', 0);
     }
 }

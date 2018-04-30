@@ -95,7 +95,7 @@ class Group extends Model
      */
     public function rewards()
     {
-        return $this->belongsToMany(Reward::class, 'player_reward', 'group_id', 'reward_id')->withPivot('total', 'player_id');
+        return $this->belongsToMany(Reward::class, 'player_reward', 'group_id', 'reward_id')->withPivot('total', 'player_id', 'dry');
     }
 
     public function accessBalance()

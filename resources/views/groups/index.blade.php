@@ -31,7 +31,7 @@
                         <td class="d-none d-sm-block">{{ $group->description }}</td>
                         <td>{{ $group->players_count }}</td>
                         <td>{{ $group->accessBalance() }}</td>
-                        <td>{{ $group->rewards->sum('pivot.total') }}</td>
+                        <td>{{ $group->rewards()->notDry()->sum('player_reward.total') }}</td>
                     </tr>
                     @endforeach
                 </tbody>

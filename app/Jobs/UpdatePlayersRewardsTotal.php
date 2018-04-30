@@ -83,6 +83,7 @@ class UpdatePlayersRewardsTotal implements ShouldQueue
                 $player->rewards()->save($this->reward, [
                     'group_id' => $player->group_id,
                     'total' => $credit['quantity'],
+                    'dry' => $player->isDAAB(),
                 ]);
             }
 
@@ -97,6 +98,7 @@ class UpdatePlayersRewardsTotal implements ShouldQueue
         $genesis->rewards()->save($this->reward, [
             'group_id' => $genesis->group_id,
             'total' => $this->reward->total - $this->reward->players->sum('pivot.total'),
+            'dry' => $genesis->isDAAB(),
         ]);
     }
 }

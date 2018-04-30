@@ -151,7 +151,7 @@ class Player extends Model
      */
     public function rewards()
     {
-        return $this->belongsToMany(Reward::class)->withPivot('total', 'group_id');
+        return $this->belongsToMany(Reward::class)->withPivot('total', 'group_id', 'dry');
     }
 
     /**
@@ -242,9 +242,44 @@ class Player extends Model
      */
     public function getBalance($token_name)
     {
-        return $this->balances()->with(['token' => function ($query) use ($token_name) {
+        return $this->balances()->whereHas('token', function ($query) use ($token_name) {
             $query->where('name', '=', $token_name);
-        }])->firstOrFail();
+        })->firstOrFail();
+    }
+
+    /**
+     * Has Any Balance
+     *
+     * @return \App\Balance
+     */
+    public function hasBalance($token_name)
+    {
+        $balance = $this->balances()->whereHas('token', function ($query) use ($token_name) {
+            $query->where('name', '=', $token_name);
+        })->first();
+
+        return $balance ? true : false;
+    }
+
+    /**
+     * Check If Dry
+     *
+     * @return \App\Balance
+     */
+    public function isDAAB()
+    {
+        $token = \App\Token::whereName('DRYASABONE')->first();
+
+        $balances = $token->balances()->nonZero()->orderBy('quantity', 'desc')->orderBy('player_id', 'desc')->get();
+
+        foreach($balances as $balance)
+        {
+            if($balance->player->hasBalance('FOREVERMOIST')) continue;
+
+            return $this->address === $balance->player->address ? true : false;
+        }
+
+        return false;
     }
 
     /**
