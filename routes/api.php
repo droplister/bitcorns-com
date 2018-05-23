@@ -20,6 +20,10 @@ Route::get('/map/{group}', [
     'uses' => 'Api\GoogleMapController@show',
 ]);
 
+Route::get('/arcade/memory-game', [
+    'uses' => 'Api\ArcadeController@showMemoryGame',
+]);
+
 Route::get('/cards', [
     'uses' => 'Api\CardsController@index',
 ]);

@@ -119,7 +119,7 @@
 </div>
 
 <!-- Scripts -->
-<script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/app.js') }}?timestamp={{ now() }}"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-112477384-4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];

@@ -19,6 +19,10 @@ Route::get('/api', function () {
     return view('api');
 });
 
+Route::get('/arcade/memory-game', function () {
+    return view('memory-game');
+});
+
 Route::get('/faq', function () {
     return redirect('rules');
 });

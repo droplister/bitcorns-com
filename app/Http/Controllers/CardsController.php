@@ -37,6 +37,7 @@ class CardsController extends Controller
         $card = $token; // Re-assign
 
         $players = $card->players()->whereHasAccess()
+            ->where('quantity', '>', 0)
             ->orderBy('quantity', 'desc')
             ->paginate(20);
 

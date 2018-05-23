@@ -16,6 +16,7 @@ window.Vue = require('vue');
  */
 
 Vue.component('google-map', require('./components/GoogleMapComponent.vue'));
+Vue.component('memory-game', require('./components/MemoryGameComponent.vue'));
 
 const app = new Vue({
     el: '#app'

@@ -23,7 +23,10 @@ class GroupsController extends Controller
      */
     public function index()
     {
-        $groups = \App\Group::withCount('players')->orderBy('players_count', 'desc')->orderBy('name', 'asc')->get();
+        $groups = \App\Group::has('players')->withCount('players')
+            ->orderBy('players_count', 'desc')
+            ->orderBy('name', 'asc')
+            ->get();
 
         return view('groups.index', compact('groups'));
     }
