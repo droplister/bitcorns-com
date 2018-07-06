@@ -51,14 +51,16 @@ class GroupsController extends Controller
     {
         $player = \App\Player::whereAddress($request->address)->first();
 
-        if($error = $this->guardAgainstInsufficientAccess($player))
+        if(\Auth::guard('player')->check() && \Auth::guard('player')->user()->address === $player->address)
         {
-            return back()->with('error', $error);
+            // We Good
         }
-
-        if($error = $this->guardAgainstInvalidSignature($request, $player))
+        else
         {
-            return back()->with('error', $error);
+            if($error = $player->guardAgainstInsufficientAccess(env('MIN_ACCESS_GROUP')) || $error = $player->guardAgainstInvalidSignature($request))
+            {
+                return back()->with('error', $error);
+            }
         }
 
         $group = \App\Group::create([
@@ -88,9 +90,38 @@ class GroupsController extends Controller
      */
     public function show(\App\Group $group)
     {
-        $players = $group->players()->withCount('rewards')->get();
+        $players = $group->players()
+            ->whereHasAccess()
+            ->withCount('rewards')
+            ->get();
 
         return view('groups.show', compact('group', 'players'));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Group  $group
+     * @return \Illuminate\Http\Response
+     */
+    public function showTwo(\App\Group $group)
+    {
+        $players = $group->players()
+            ->whereHasAccess()
+            ->withCount('rewards')
+            ->get();
+
+        $ids = $players->pluck('id')->toArray();
+
+        $upgrades = \App\Balance::whereIn('player_id', $ids)
+            ->upgrades()
+            ->nonZero()
+            ->selectRaw('SUM(quantity) as quantity, token_id')
+            ->groupBy('token_id')
+            ->orderBy('quantity', 'desc')
+            ->get();
+
+        return view('groups.show-2', compact('group', 'players', 'upgrades'));
     }
 
     /**
@@ -102,85 +133,5 @@ class GroupsController extends Controller
     public function edit(\App\Player $player)
     {
         return view('groups.edit', compact('player'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    /**
-     * Minimum access token balance required.
-     *
-     * @param  \App\Player  $player
-     */
-    private function guardAgainstInsufficientAccess(\App\Player $player)
-    {
-        if($player->accessBalance()->quantity < env('MIN_ACCESS_GROUP'))
-        {
-            return 'Low Access Token Balance';
-        }
-    }
-
-    /**
-     * Verify Signature
-     *
-     * @param  \App\Http\Requests\Groups\StoreRequest  $request
-     * @param  \App\Player  $player
-     * @return \Illuminate\Http\Response
-     */
-    private function guardAgainstInvalidSignature(\App\Http\Requests\Groups\StoreRequest $request, \App\Player $player)
-    {
-        try
-        {
-            $timestamp = \Carbon\Carbon::parse($request->timestamp);
-        }
-        catch(\Exception $e)
-        {
-            return 'Invalid Timestamp';
-        }
-
-        if($timestamp < \Carbon\Carbon::now()->subHour())
-        {
-            return 'Expired Timestamp';
-        }
-
-        try
-        {
-            $messageVerification = \BitWasp\BitcoinLib\BitcoinLib::verifyMessage(
-                $player->address,
-                $request->signature,
-                $request->timestamp
-            );
-
-            if(! $messageVerification)
-            {
-                return 'No Message Verification';
-            }
-        }
-        catch(\Exception $e)
-        {
-            return 'Invalid Bitcoin Address';
-        }
-
-        return false;
     }
 }

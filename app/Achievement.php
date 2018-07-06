@@ -12,7 +12,10 @@ class Achievement extends Model
      * @var array
      */
     protected $fillable = [
-         'type', 'name', 'description', 'image_url',
+         'type',
+         'name',
+         'description',
+         'image_url',
     ];
 
     /**

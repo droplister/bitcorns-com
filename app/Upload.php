@@ -15,7 +15,11 @@ class Upload extends Model
      * @var array
      */
     protected $fillable = [
-         'player_id', 'new_image_url', 'old_image_url', 'accepted_at', 'rejected_at',
+         'player_id',
+         'new_image_url',
+         'old_image_url',
+         'accepted_at',
+         'rejected_at',
     ];
 
     /**
@@ -24,7 +28,8 @@ class Upload extends Model
      * @var array
      */
     protected $dates = [
-        'accepted_at', 'rejected_at',
+        'accepted_at',
+        'rejected_at',
     ];
 
     /**

@@ -3,16 +3,38 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Player extends Model
+class Player extends Authenticatable
 {
+    protected $guard = 'player';
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'created' => \App\Events\PlayerWasCreated::class,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'group_id', 'tx_id', 'type', 'address', 'name', 'description', 'image_url', 'rewards_total', 'latitude', 'longitude', 'processed_at',
+        'group_id',
+        'tx_id',
+        'type',
+        'address',
+        'name',
+        'description',
+        'image_url',
+        'rewards_total',
+        'latitude',
+        'longitude',
+        'processed_at',
     ];
 
     /**
@@ -30,8 +52,12 @@ class Player extends Model
      * @var array
      */
     protected $appends = [
-        'display_name', 'display_description', 'display_image_url', 'display_thumb_url',
-        'map_radius', 'url',
+        'display_name',
+        'display_description',
+        'display_image_url',
+        'display_thumb_url',
+        'map_radius',
+        'url',
     ];
 
     /**
@@ -281,6 +307,66 @@ class Player extends Model
             if($player->hasBalance(env('SAVE_TOKEN_NAME'))) continue;
 
             return $this->address === $player->address ? true : false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Verify Access
+     */
+    public function guardAgainstInsufficientAccess($access_level = null)
+    {
+        if(! $access_level)
+        {
+            $access_level = env('MIN_ACCESS_UPDATE');
+        }
+
+        if($this->accessBalance()->quantity < $access_level)
+        {
+            return 'Low Access Token Balance';
+        }
+
+        return false;
+    }
+
+    /**
+     * Verify Signature
+     *
+     * @param  $request
+     */
+    public function guardAgainstInvalidSignature($request)
+    {
+        try
+        {
+            $timestamp = \Carbon\Carbon::parse($request->timestamp);
+
+            if($timestamp < \Carbon\Carbon::now()->subHour())
+            {
+                return 'Invalid Timestamp';
+            }
+        }
+        catch(\Exception $e)
+        {
+            return 'Invalid Timestamp';
+        }
+
+        try
+        {
+            $messageVerification = \BitWasp\BitcoinLib\BitcoinLib::verifyMessage(
+                $this->address,
+                $request->signature,
+                $request->timestamp
+            );
+
+            if(! $messageVerification)
+            {
+                return 'Invalid Signature';
+            }
+        }
+        catch(\Exception $e)
+        {
+            return 'Invalid Signature';
         }
 
         return false;

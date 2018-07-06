@@ -28,8 +28,8 @@ class UpdateRequest extends FormRequest
             'description' => 'sometimes|min:10|max:255',
             'latitude' => 'sometimes|required_with:latitude|nullable|numeric|min:-90|max:90',
             'lontitude' => 'sometimes|required_with:longitude|nullable|numeric|min:-180|max:180',
-            'timestamp' => 'required',
-            'signature' => 'required',
+            'timestamp' => 'sometimes',
+            'signature' => 'sometimes',
         ];
     }
 }

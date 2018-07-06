@@ -8,6 +8,7 @@
     <h1 class="display-4 mt-5 mb-4">{{ $group->name }}</h1>
     <p>{{ $group->description }}</p>
     @include('partials.session')
+    @if(Auth::guard('player')->guest() || Auth::guard('player')->check() && Auth::guard('player')->user()->group_id !== $group->id)
     <div class="row mt-5">
         <div class="col">
             <div class="card">
@@ -17,7 +18,15 @@
                 <div class="card-body">
                     @if('open' === $group->type)
                     <form role="form" method="POST" action="{{ url(route('memberships.store', ['group' => $group->slug])) }}">
-                            {{ csrf_field() }}
+                        {{ csrf_field() }}
+                        @if(Auth::guard('player')->check())
+                        <input id="address" type="hidden" name="address" value="{{ Auth::guard('player')->user()->address }}">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Join Co-Op
+                            </button>
+                        </div>
+                        @else
                         <div class="form-group">
                             <label for="address">Member</label>
                             <input id="address" type="text" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" name="address" value="{{ old('address') }}" placeholder="19QWXpMXeLkoEKEJv2xo9rn8wkPCyxACSX">
@@ -57,6 +66,7 @@
                                 <i class="fa fa-save"></i> Save
                             </button>
                         </div>
+                        @endif
                     </form>
                     @else
                         <p class="card-text"><em>This is a closed group and requires an invitation to join.</em></p>
@@ -65,7 +75,8 @@
             </div>
         </div>
     </div>
-    <div class="row mt-5">
+    @endif
+    <div class="row mt-4">
         @foreach($players as $player)
         <div class="col-12 col-sm-6 col-md-4 mt-4 mb-2">
             <div class="card">

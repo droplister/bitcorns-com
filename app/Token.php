@@ -12,7 +12,19 @@ class Token extends Model
      * @var array
      */
     protected $fillable = [
-        'type', 'long_name', 'name', 'issuer', 'content', 'description', 'image_url', 'thumb_url', 'total_issued', 'total_burned', 'divisible', 'locked', 'public',
+        'type',
+        'name',
+        'long_name',
+        'issuer',
+        'content',
+        'description',
+        'image_url',
+        'thumb_url',
+        'total_issued',
+        'total_burned',
+        'divisible',
+        'locked',
+        'public',
     ];
 
     /**
@@ -22,9 +34,16 @@ class Token extends Model
      */
     protected $appends = [
         'total_supply',
-        'normalized_total', 'normalized_burn', 'normalized_supply',
-        'display_name', 'display_total', 'display_image_url', 'display_thumb_url',
-        'url', 'edit_url', 'explorer_url',
+        'normalized_total',
+        'normalized_burn',
+        'normalized_supply',
+        'display_name',
+        'display_total',
+        'display_image_url',
+        'display_thumb_url',
+        'url',
+        'edit_url',
+        'explorer_url',
     ];
 
     /**
@@ -139,7 +158,7 @@ class Token extends Model
      */
     public function getExplorerUrlAttribute()
     {
-        return 'https://xchain.io/asset/' . $this->name;
+        return 'https://xcpfox.com/asset/' . $this->name;
     }
 
     /**

@@ -7,12 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 class Reward extends Model
 {
     /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'created' => \App\Events\RewardWasCreated::class,
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'token_id', 'tx_id', 'total', 'per_token',
+        'token_id',
+        'tx_id',
+        'total',
+        'per_token',
     ];
 
     /**
@@ -46,7 +58,7 @@ class Reward extends Model
     }
 
     /**
-     * Tx
+     * Not Dry
      */
     public function scopeNotDry($query)
     {

@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use JsonRPC\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -24,7 +23,7 @@ class UpdateTxType implements ShouldQueue
      */
     public function __construct(\App\Token $token, $type)
     {
-        $this->counterparty = new Client(env('CP_API'));
+        $this->counterparty = new \JsonRPC\Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
         $this->token = $token;
         $this->type = $type;
@@ -37,114 +36,125 @@ class UpdateTxType implements ShouldQueue
      */
     public function handle()
     {
-        // TODO: Optimize
-
-        $offset = $this->getOffset($this->type, $this->token);
-
-        while($offset <= 10000000)
+        try
         {
-            switch($this->type) {
-                case 'dividend':
-                    $txs = $this->getDividends($this->token, $offset);
-                    break;
-                case 'issuance':
-                    $txs = $this->getIssuances($this->token, $offset);
-                    break;
-                case 'order':
-                    $txs = $this->getOrders($this->token, $offset);
-                    break;
-                case 'send':
-                    $txs = $this->getSends($this->token, $offset);
-                    break;
-                default:
-                    \Exception('No Type Set');
-                    break;
-            }
+            $offset = $this->getOffset();
 
-            if(! count($txs)) break;
-
-            foreach($txs as $tx)
+            while($offset <= 10000000)
             {
-                $this->updateRecentTx($this->firstOrCreateTx($this->token, $this->type, $tx, $offset));
-            }
+                $txs = $this->getTxs($offset);
 
-            $offset = $offset + 1000;
+                foreach($txs as $tx)
+                {
+                    $this->firstOrCreateTx($tx, $offset);
+                }
+
+                $offset = $offset + 1000;
+
+                if(count($txs) === 0) break;
+            }
+        }
+        catch(\Exception $e)
+        {
+            // API 404
         }
     }
 
-    private function getOffset($type, $token)
+    /**
+     * Get Offset
+     */
+    private function getOffset()
     {
-        $tx = \App\Tx::whereType($type)->with(['token' => function ($query) use ($token) {
-            $query->where('name', '=', $token->name);
-        }])->orderBy('offset', 'desc')->first();
+        $tx = $this->token->txs()
+            ->where('type', '=', $this->type)
+            ->orderBy('offset', 'desc')
+            ->first();
 
         return $tx ? $tx->offset : 0;
     }
 
-    private function firstOrCreateTx($token, $type, $tx, $offset)
+    /**
+     * Get Txs
+     */
+    private function getTxs($offset)
+    {
+        switch($this->type)
+        {
+            case 'dividend':
+                return $this->getMergedDividends($offset);
+            case 'issuance':
+                return $this->getIssuances($offset);
+            case 'order':
+                return $this->getMergedOrders($offset);
+            case 'send':
+                return $this->getSends($offset);
+            default:
+                \Exception('No Type Set');
+        }
+    }
+
+    /**
+     * Create Tx
+     */
+    private function firstOrCreateTx($tx, $offset)
     {
         return \App\Tx::firstOrCreate([
             'tx_index' => $tx['tx_index'],
         ],[
-            'token_id' => $token->id,
-            'offset' => $offset,
-            'type' => $type,
+            'token_id' => $this->token->id,
+            'type' => $this->type,
             'block_index' => $tx['block_index'],
             'tx_index' => $tx['tx_index'],
             'tx_hash' => $tx['tx_hash'],
+            'offset' => $offset,
         ]);
     }
 
-    private function updateRecentTx($tx)
+    /**
+     * Merged Dividends
+     */
+    private function getMergedDividends($offset)
     {
-        if($tx->wasRecentlyCreated) {
-            \App\Jobs\UpdateTx::dispatch($tx);
-        }
-    }
-
-    private function getDividends($token, $offset = 0)
-    {
-        $gets = $this->counterparty->execute('get_dividends', [
-            'filters' => [
-                [
-                    'field' => 'asset',
-                    'op'    => '==',
-                    'value' => $token->name,
-                ],[
-                    'field' => 'status',
-                    'op'    => '==',
-                    'value' => 'valid',
-                ],
-            ],
-            'offset' => $offset,
-        ]);
-
-        $gives = $this->counterparty->execute('get_dividends', [
-            'filters' => [
-                [
-                    'field' => 'dividend_asset',
-                    'op'    => '==',
-                    'value' => $token->name,
-                ],[
-                    'field' => 'status',
-                    'op'    => '==',
-                    'value' => 'valid',
-                ],
-            ],
-            'offset' => $offset,
-        ]);
+        $gives = $this->getDividends('dividend_asset', $offset);
+        $gets = $this->getDividends('asset', $offset);
 
         return array_merge($gives, $gets);
     }
 
-    private function getIssuances($token, $offset = 0)
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getDividends($field, $offset)
+    {
+        return $this->counterparty->execute('get_dividends', [
+            'filters' => [
+                [
+                    'field' => $field,
+                    'op'    => '==',
+                    'value' => $this->token->name,
+                ],[
+                    'field' => 'status',
+                    'op'    => '==',
+                    'value' => 'valid',
+                ],
+            ],
+            'offset' => $offset,
+        ]);
+    }
+
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getIssuances($offset)
     {
         return $this->counterparty->execute('get_issuances', [
             'filters' => [
                 [
                     'field' => 'asset',
                     'op'    => '==',
-                    'value' => $token->name,
+                    'value' => $this->token->name,
                 ],[
                     'field' => 'status',
                     'op'    => '==',
@@ -155,49 +165,51 @@ class UpdateTxType implements ShouldQueue
         ]);
     }
 
-    private function getOrders($token, $offset = 0)
+    /**
+     * Merged Orders
+     */
+    private function getMergedOrders($offset)
     {
-        $gives = $this->counterparty->execute('get_orders', [
-            'filters' => [
-                [
-                    'field' => 'give_asset',
-                    'op'    => '==',
-                    'value' => $token->name,
-                ],[
-                    'field' => 'status',
-                    'op'    => '!=',
-                    'value' => 'invalid',
-                ],
-            ],
-            'offset' => $offset,
-        ]);
-
-        $gets = $this->counterparty->execute('get_orders', [
-            'filters' => [
-                [
-                    'field' => 'get_asset',
-                    'op'    => '==',
-                    'value' => $token->name,
-                ],[
-                    'field' => 'status',
-                    'op'    => '!=',
-                    'value' => 'invalid',
-                ],
-            ],
-            'offset' => $offset,
-        ]);
+        $gives = $this->getOrders('give_asset', $offset);
+        $gets = $this->getOrders('get_asset', $offset);
 
         return array_merge($gives, $gets);
     }
 
-    private function getSends($token, $offset = 0)
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getOrders($field, $offset)
+    {
+        return $this->counterparty->execute('get_orders', [
+            'filters' => [
+                [
+                    'field' => $field,
+                    'op'    => '==',
+                    'value' => $this->token->name,
+                ],[
+                    'field' => 'status',
+                    'op'    => '!=',
+                    'value' => 'invalid',
+                ],
+            ],
+            'offset' => $offset,
+        ]);
+    }
+
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getSends($offset)
     {
         return $this->counterparty->execute('get_sends', [
             'filters' => [
                 [
                     'field' => 'asset',
                     'op'    => '==',
-                    'value' => $token->name,
+                    'value' => $this->token->name,
                 ],[
                     'field' => 'status',
                     'op'    => '==',

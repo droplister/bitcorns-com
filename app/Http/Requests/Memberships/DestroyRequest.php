@@ -25,8 +25,8 @@ class DestroyRequest extends FormRequest
     {
         return [
             'leave' => 'required',
-            'timestamp' => 'required',
-            'signature' => 'required',
+            'timestamp' => 'sometimes',
+            'signature' => 'sometimes',
         ];
     }
 }

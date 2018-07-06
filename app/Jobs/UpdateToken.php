@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use JsonRPC\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,7 +22,7 @@ class UpdateToken implements ShouldQueue
      */
     public function __construct(\App\Token $token)
     {
-        $this->counterparty = new Client(env('CP_API'));
+        $this->counterparty = new \JsonRPC\Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
         $this->token = $token;
     }
@@ -35,7 +34,33 @@ class UpdateToken implements ShouldQueue
      */
     public function handle()
     {
-        $issuances = $this->counterparty->execute('get_issuances', [
+        try
+        {
+            // Get Token Issuances
+            $issuances = $this->getIssuances();
+
+            // Get Latest Issuance
+            $issuance = end($issuances);
+
+            // Crunch Total Issued
+            $total_issued = array_sum(array_column($issuances,'quantity'));
+
+            // Update Token
+            $this->updateToken($issuance, $total_issued);
+        }
+        catch(\Exception $e)
+        {
+            // API 404
+        }
+    }
+
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getIssuances()
+    {
+        return $this->counterparty->execute('get_issuances', [
             'filters' => [
                 [
                     'field' => 'asset',
@@ -49,11 +74,14 @@ class UpdateToken implements ShouldQueue
                 ],
             ],
         ]);
+    }
 
-        $issuance = end($issuances);
-        $total_issued = array_sum(array_column($issuances,'quantity'));
-
-        $this->token->update([
+    /**
+     * Update Token
+     */
+    private function updateToken($issuance, $total_issued)
+    {
+        return $this->token->update([
             'long_name' => $issuance['asset_longname'],
             'issuer' => $issuance['issuer'],
             'description' => $issuance['description'],

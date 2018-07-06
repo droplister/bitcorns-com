@@ -48,14 +48,16 @@ class UploadsController extends Controller
      */
     public function store(\App\Http\Requests\Uploads\StoreRequest $request, \App\Player $player)
     {
-        if($error = $this->guardAgainstInsufficientAccess($player))
+        if(\Auth::guard('player')->check() && \Auth::guard('player')->user()->address === $player->address)
         {
-            return back()->with('error', $error);
+            // We Good
         }
-
-        if($error = $this->guardAgainstInvalidSignature($request, $player))
+        else
         {
-            return back()->with('error', $error);
+            if($error = $player->guardAgainstInsufficientAccess() || $error = $player->guardAgainstInvalidSignature($request))
+            {
+                return back()->with('error', $error);
+            }
         }
 
         $stored_file = $request->file('image')->store('public/custom');

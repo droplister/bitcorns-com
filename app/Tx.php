@@ -7,12 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 class Tx extends Model
 {
     /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'created' => \App\Events\TxWasCreated::class,
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'token_id', 'offset', 'type', 'block_index', 'tx_index', 'tx_hash', 'source', 'destination', 'quantity', 'fee', 'tx_hex', 'confirmed_at', 'processed_at',
+        'token_id',
+        'offset',
+        'type',
+        'block_index',
+        'tx_index',
+        'tx_hash',
+        'source',
+        'destination',
+        'quantity',
+        'fee',
+        'tx_hex',
+        'confirmed_at',
+        'processed_at',
     ];
 
     /**
@@ -21,7 +42,8 @@ class Tx extends Model
      * @var array
      */
     protected $dates = [
-        'confirmed_at', 'processed_at',
+        'confirmed_at',
+        'processed_at',
     ];
 
     /**
@@ -30,7 +52,9 @@ class Tx extends Model
      * @var array
      */
     protected $appends = [
-        'display_confirmed_at', 'display_fee', 'display_quantity',
+        'display_fee',
+        'display_quantity',
+        'display_confirmed_at',
     ];
 
     /**

@@ -15,7 +15,11 @@ class Membership extends Model
      * @var array
      */
     protected $fillable = [
-         'group_id', 'player_id', 'description', 'accepted_at', 'rejected_at',
+         'group_id',
+         'player_id',
+         'description',
+         'accepted_at',
+         'rejected_at',
     ];
 
     /**
@@ -24,7 +28,8 @@ class Membership extends Model
      * @var array
      */
     protected $dates = [
-        'accepted_at', 'rejected_at',
+        'accepted_at',
+        'rejected_at',
     ];
 
     /**

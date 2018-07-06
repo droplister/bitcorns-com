@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use JsonRPC\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,7 +22,7 @@ class UpdateBalances implements ShouldQueue
      */
     public function __construct(\App\Token $token)
     {
-        $this->counterparty = new Client(env('CP_API'));
+        $this->counterparty = new \JsonRPC\Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
         $this->token = $token;
     }
@@ -35,35 +34,53 @@ class UpdateBalances implements ShouldQueue
      */
     public function handle()
     {
-        $balances = $this->counterparty->execute('get_balances', [
+        try
+        {
+            // Get All Token Balances
+            $balances = $this->getBalances();
+
+            // Iterate Player Balances
+            foreach($balances as $balance)
+            {
+                // Players Only
+                if($player = \App\Player::whereAddress($balance['address'])->first())
+                {
+                    // Update Balance
+                    $this->updateOrCreateBalance($player, $balance);
+                }
+            }
+        }
+        catch(\Exception $e)
+        {
+            // API 404
+        }
+    }
+
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getBalances()
+    {
+        return $this->counterparty->execute('get_balances', [
             'filters' => [
                 'field' => 'asset',
                 'op'    => '==',
                 'value' => $this->token->name,
             ],
         ]);
+    }
 
-        foreach($balances as $balance)
-        {
-            if($player = \App\Player::whereAddress($balance['address'])->first())
-            {
-                \App\Balance::updateOrCreate([
-                    'player_id' => $player->id,
-                    'token_id' => $this->token->id,
-                ],[
-                    'quantity' => $balance['quantity'],
-                ]);
-
-                if($this->token->type == 'access' && $balance['quantity'] == 0)
-                {
-                    $player->update(['latitude' => null, 'longitude' => null]);
-                }
-
-                if($player->address === env('BURN_ADDRESS'))
-                {
-                    $this->token->update(['total_burned' => $balance['quantity']]);
-                }
-            }
-        }
+    /**
+     * Update Balance
+     */
+    private function updateOrCreateBalance($player, $balance)
+    {
+        return \App\Balance::updateOrCreate([
+            'player_id' => $player->id,
+            'token_id' => $this->token->id,
+        ],[
+            'quantity' => $balance['quantity'],
+        ]);
     }
 }

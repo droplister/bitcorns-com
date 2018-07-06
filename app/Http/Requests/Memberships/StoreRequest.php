@@ -25,8 +25,8 @@ class StoreRequest extends FormRequest
     {
         return [
             'address' => 'required|exists:players,address',
-            'timestamp' => 'required',
-            'signature' => 'required',
+            'timestamp' => 'sometimes',
+            'signature' => 'sometimes',
         ];
     }
 }

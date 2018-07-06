@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use JsonRPC\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,7 +21,7 @@ class UpdatePlayers implements ShouldQueue
      */
     public function __construct()
     {
-        $this->counterparty = new Client(env('CP_API'));
+        $this->counterparty = new \JsonRPC\Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
     }
 
@@ -33,27 +32,62 @@ class UpdatePlayers implements ShouldQueue
      */
     public function handle()
     {
-        $holders = $this->counterparty->execute('get_holders', [
-            'asset' => env('ACCESS_TOKEN_NAME'),
-        ]);
-
-        foreach($holders as $holder)
+        try
         {
-            $player = \App\Player::firstOrCreate([
-                'address' => $holder['address']
-            ],[
-                'name' => 'LONGER NAME THAN IS NORMALLY ALLOWED ' . rand(1,999999999999),
-                'description' => $this->getCornyQuote(),
-                'image_url' => asset('img/farms/' . rand(1, 12) . '.jpg'),
-            ]);
+            // Get Access Token Holders
+            $holders = $this->getHolders();
 
-            if(! $player->processed_at)
+            // Iterate Token Holders
+            foreach($holders as $holder)
             {
-                \App\Jobs\UpdatePlayerType::dispatch($player);
+                // Create New Player
+                $this->firstOrCreatePlayer($holder);
             }
+        }
+        catch(\Exception $e)
+        {
+            // API 404
         }
     }
 
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_holders
+     */
+    private function getHolders()
+    {
+        return $this->counterparty->execute('get_holders', [
+            'asset' => env('ACCESS_TOKEN_NAME'),
+        ]);
+    }
+
+    /**
+     * Create Player
+     */
+    private function firstOrCreatePlayer($holder)
+    {
+        return \App\Player::firstOrCreate([
+            'address' => $holder['address']
+        ],[
+            'name' => $this->getTemporaryName(),
+            'description' => $this->getCornyQuote(),
+            'image_url' => $this->getFarmImage(),
+        ]);
+    }
+
+    /**
+     * Get Temporary Name
+     */
+    private function getTemporaryName()
+    {
+        // Better Name Generated After Creation
+        // But We Need To Get Player Type First
+        return 'LONGER NAME THAN IS NORMALLY ALLOWED ' . rand(1, 999999999999);
+    }
+
+    /**
+     * Get Corny Quote
+     */
     private function getCornyQuote()
     {
         $quotes = [
@@ -78,9 +112,18 @@ class UpdatePlayers implements ShouldQueue
             'Douglas Jerrold'       => 'If you tickle the earth with a hoe she laughs with a harvest.',
         ];
 
-        $author = array_rand($quotes);
-        $quote = $quotes[$author];
+        $author = array_rand($quotes);  // key
+        $quote = $quotes[$author];      // value
 
         return '"' . $quote . '" &ndash; ' . $author;
+    }
+
+    /**
+     * Get Farm Image
+     */
+    private function getFarmImage()
+    {
+        // 12 Default Images
+        return asset('img/farms/' . rand(1, 12) . '.jpg');
     }
 }

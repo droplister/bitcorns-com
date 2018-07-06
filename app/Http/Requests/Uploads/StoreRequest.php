@@ -25,8 +25,8 @@ class StoreRequest extends FormRequest
     {
         return [
             'image' => 'required|mimetypes:image/jpeg|mimes:jpeg,jpg|dimensions:width=1600,height=900|max:5000',
-            'timestamp' => 'required',
-            'signature' => 'required',
+            'timestamp' => 'sometimes',
+            'signature' => 'sometimes',
         ];
     }
 }

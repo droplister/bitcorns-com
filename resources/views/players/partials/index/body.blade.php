@@ -1,0 +1,1 @@
+@include('players.partials.index.players', ['paginated' => true])

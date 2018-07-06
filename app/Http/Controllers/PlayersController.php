@@ -7,93 +7,71 @@ use Illuminate\Http\Request;
 class PlayersController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Instantiate a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:player')->only('editor');
+    }
+
+    /**
+     * List Players (Sortable)
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $request->validate([
-            'sort' => 'sometimes|in:access,reward,rewards,rewards-total,no-access,newest,oldest,updated',
-        ]);
+        // Validation
+        $request->validate(['sort' => 'sometimes|in:access,reward,rewards,rewards-total,no-access,newest,oldest,updated']);
 
-        $sort = $request->input('sort', 'access');
+        // Sort Order
+        $sort = $request->input('sort', 'access'); // default = 'access'
 
-        switch($sort) {
-            case 'access':
-                $token = \App\Token::whereType('access')->first();
-                $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc');
-                break;
-            case 'reward':
-                $token = \App\Token::whereType('reward')->first();
-                $players = $token->players()->whereHasAccess()->orderBy('quantity', 'desc');
-                break;
-            case 'rewards':
-                $players = \App\Player::whereHasAccess()->orderBy('rewards_count', 'desc')->orderBy('processed_at', 'asc');
-                break;
-            case 'rewards-total':
-                $players = \App\Player::whereHasAccess()->orderBy('rewards_total', 'desc');
-                break;
-            case 'no-access':
-                $players = \App\Player::whereHasNoAccess()->orderBy('processed_at', 'desc');
-                break;
-            case 'newest':
-                $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'desc');
-                break;
-            case 'oldest':
-                $players = \App\Player::whereHasAccess()->orderBy('processed_at', 'asc');
-                break;
-            case 'updated':
-                $players = \App\Player::whereHasAccess()->orderBy('updated_at', 'desc');
-                break;
-            default:
-                \Exception('Sort Validation Failure');
-                break;
-        }
+        // Build Query
+        $players = $this->getPlayerQuery($request, $sort)->paginate(45);
 
-        if($request->has('q'))
-        {
-             $players = \App\Player::whereHasAccess()->where('name', 'like', '%' . $request->q . '%')->orWhere('address', 'like', '%' . $request->q . '%');
-        }
-
-        $players = $players->paginate(60);
-
+        // Return View
         return view('players.index', compact('players', 'sort'));
     }
 
     /**
-     * Display the specified resource.
+     * Show Player
      *
      * @param  \App\Player  $player
      * @return \Illuminate\Http\Response
      */
     public function show(\App\Player $player)
     {
-        $balances = $player->balances()->get();
+        // Tokens: Access and Rewards
+        $balances = $player->balances()->tokens()->get();
 
-        $upgrades = $player->balances()->whereHas('token', function($token){
-                $token->whereType('upgrade');
-                $token->wherePublic('1');
-            })->where('quantity', '>', 0)
-            ->get();
+        // Tokens: Upgrades
+        $upgrades = $player->balances()->upgrades()->nonZero()->orderBy('quantity', 'desc')->get();
 
-        return view('players.show', compact('player', 'balances', 'upgrades'));
+        // Player: Transactions
+        $txs = $player->txs()->orderBy('tx_index', 'desc')->take(5)->get();
+
+        // Return View
+        return view('players.show', compact('player', 'balances', 'upgrades', 'txs'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Edit Player
      *
      * @param  \App\Player  $player
      * @return \Illuminate\Http\Response
      */
     public function edit(\App\Player $player)
     {
+        // Return View
         return view('players.edit', compact('player'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Player
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Player  $player
@@ -101,39 +79,71 @@ class PlayersController extends Controller
      */
     public function update(\App\Http\Requests\Players\UpdateRequest $request, \App\Player $player)
     {
-        if($error = $this->guardAgainstInsufficientAccess($player))
+        // Authentication
+        if(\Auth::guard('player')->check() && \Auth::guard('player')->user()->address === $player->address)
         {
-            return back()->with('error', $error);
+            // Logged In
+        }
+        else
+        {
+            if($error = $player->guardAgainstInsufficientAccess() || $error = $player->guardAgainstInvalidSignature($request))
+            {
+                return back()->with('error', $error);
+            }
         }
 
-        if($error = $this->guardAgainstInvalidSignature($request, $player))
-        {
-            return back()->with('error', $error);
-        }
-
+        // Validation
         if($error = $this->guardAgainstBoundaryViolations($request, $player))
         {
             return back()->with('error', $error);
         }
 
+        // Execution
         $player->update($request->all());
 
+        // Return Back
         return back()->with('success', 'Update Complete');
     }
 
     /**
-     * Minimum access token balance required.
+     * Build Player Query
      *
-     * @param  \App\Player  $player
+     * @param  \Illuminate\Http\Request  $request
      */
-    private function guardAgainstInsufficientAccess(\App\Player $player)
+    private function getPlayerQuery(Request $request, $sort)
     {
-        if($player->accessBalance()->quantity < env('MIN_ACCESS_UPDATE'))
+        // Search
+        if($request->has('q'))
         {
-            return 'Low Access Token Balance';
+             return \App\Player::whereHasAccess()
+                 ->where('name', 'like', '%' . $request->q . '%')
+                 ->orWhere('address', 'like', '%' . $request->q . '%');
         }
 
-        return false;
+        // Sorted
+        switch($sort)
+        {
+            case 'access':
+                $token = \App\Token::whereType('access')->first();
+                return $token->players()->whereHasAccess()->orderBy('quantity', 'desc');
+            case 'reward':
+                $token = \App\Token::whereType('reward')->first();
+                return $token->players()->whereHasAccess()->orderBy('quantity', 'desc');
+            case 'rewards':
+                return \App\Player::whereHasAccess()->orderBy('rewards_count', 'desc')->orderBy('processed_at', 'asc');
+            case 'rewards-total':
+                return \App\Player::whereHasAccess()->orderBy('rewards_total', 'desc');
+            case 'no-access':
+                return \App\Player::whereHasNoAccess()->orderBy('processed_at', 'desc');
+            case 'newest':
+                return \App\Player::whereHasAccess()->orderBy('processed_at', 'desc');
+            case 'oldest':
+                return \App\Player::whereHasAccess()->orderBy('processed_at', 'asc');
+            case 'updated':
+                return \App\Player::whereHasAccess()->orderBy('updated_at', 'desc');
+            default:
+                \Exception('Sort Validation Failure');
+        }
     }
 
     /**
@@ -174,49 +184,5 @@ class PlayersController extends Controller
                 }
             }
         }
-    }
-
-    /**
-     * Verify Signature
-     *
-     * @param  \App\Http\Requests\Players\UpdateRequest  $request
-     * @param  \App\Player  $player
-     * @return \Illuminate\Http\Response
-     */
-    private function guardAgainstInvalidSignature(\App\Http\Requests\Players\UpdateRequest $request, \App\Player $player)
-    {
-        try
-        {
-            $timestamp = \Carbon\Carbon::parse($request->timestamp);
-
-            if($timestamp < \Carbon\Carbon::now()->subHour())
-            {
-                return 'Invalid Timestamp';
-            }
-        }
-        catch(\Exception $e)
-        {
-            return 'Invalid Timestamp';
-        }
-
-        try
-        {
-            $messageVerification = \BitWasp\BitcoinLib\BitcoinLib::verifyMessage(
-                $player->address,
-                $request->signature,
-                $request->timestamp
-            );
-
-            if(! $messageVerification)
-            {
-                return 'Invalid Signature';
-            }
-        }
-        catch(\Exception $e)
-        {
-            return 'Invalid Signature';
-        }
-
-        return false;
     }
 }

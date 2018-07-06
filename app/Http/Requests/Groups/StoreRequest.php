@@ -27,8 +27,8 @@ class StoreRequest extends FormRequest
             'address' => 'required|exists:players,address',
             'name' => 'required|unique:groups,name|min:5|max:30',
             'description' => 'required|min:10|max:255',
-            'timestamp' => 'required',
-            'signature' => 'required',
+            'timestamp' => 'sometimes',
+            'signature' => 'sometimes',
         ];
     }
 }

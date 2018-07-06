@@ -16,11 +16,11 @@ Route::get('/', function () {
 });
 
 Route::get('/api', function () {
-    return view('api');
+    return view('pages.api');
 });
 
 Route::get('/arcade/memory-game', function () {
-    return view('memory-game');
+    return view('pages.memory-game');
 });
 
 Route::get('/faq', function () {
@@ -28,27 +28,27 @@ Route::get('/faq', function () {
 });
 
 Route::get('/buy', function () {
-    return view('buy');
+    return view('pages.buy');
 });
 
 Route::get('/submit', function () {
-    return view('submit');
+    return view('pages.submit');
 });
 
 Route::get('/order', function () {
-    return view('order');
+    return view('pages.order');
 });
 
 Route::get('/terms', function () {
-    return view('terms');
+    return view('pages.terms');
 });
 
 Route::get('/privacy', function () {
-    return view('privacy');
+    return view('pages.privacy');
 });
 
 Route::get('/rules', function () {
-    return view('rules');
+    return view('pages.rules');
 });
 
 Route::get('/world', function () {
@@ -56,6 +56,21 @@ Route::get('/world', function () {
 });
 
 Auth::routes();
+
+Route::get('/unlock', [
+    'as' => 'unlock',
+    'uses' => 'Auth\UnlockController@show',
+]);
+
+Route::post('/unlock', [
+    'as' => 'unlock',
+    'uses' => 'Auth\UnlockController@store',
+]);
+
+Route::post('/lock', [
+    'as' => 'lock',
+    'uses' => 'Auth\UnlockController@destroy',
+]);
 
 Route::get('/admin', [
     'as' => 'admin',
@@ -105,16 +120,6 @@ Route::get('/tokens/{token}/edit', [
 Route::put('/tokens/{token}', [
     'as' => 'tokens.update',
     'uses' => 'TokensController@update',
-]);
-
-Route::get('/txs', [
-    'as' => 'txs.index',
-    'uses' => 'TxsController@index',
-]);
-
-Route::get('/txs/{tx}', [
-    'as' => 'txs.show',
-    'uses' => 'TxsController@show',
 ]);
 
 Route::get('/farms', [
@@ -172,6 +177,11 @@ Route::get('/coops/{group}', [
     'uses' => 'GroupsController@show',
 ]);
 
+Route::get('/coops/{group}/v2', [
+    'as' => 'groups.showTwo',
+    'uses' => 'GroupsController@showTwo',
+]);
+
 Route::post('/coops', [
     'as' => 'groups.store',
     'uses' => 'GroupsController@store',
@@ -215,16 +225,6 @@ Route::post('/coops/{group}/memberships', [
 Route::put('/memberships/{membership}', [
     'as' => 'memberships.update',
     'uses' => 'MembershipsController@update',
-]);
-
-Route::get('/harvests', [
-    'as' => 'rewards.index',
-    'uses' => 'RewardsController@index',
-]);
-
-Route::get('/harvests/{reward}', [
-    'as' => 'rewards.show',
-    'uses' => 'RewardsController@show',
 ]);
 
 Route::post('/{token}/webhook', function () {

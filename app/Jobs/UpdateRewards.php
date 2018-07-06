@@ -32,37 +32,72 @@ class UpdateRewards implements ShouldQueue
      */
     public function handle()
     {
-        // TODO: Use token .env variables?
+        // Get Tokens
         $access_token = \App\Token::whereType('access')->first();
         $reward_token = \App\Token::whereType('reward')->first();
 
-        $rewards = $this->counterparty->execute('get_dividends', [
-            'filters' => [
-                'field' => 'asset',
-                'op'    => '==',
-                'value' => $access_token->name,
-            ],
-        ]);
-
-        foreach($rewards as $this_reward)
+        try
         {
-            // Sanity Checks
-            if($this_reward['source'] !== $access_token->issuer || $this_reward['dividend_asset'] !== $reward_token->name || $this_reward['status'] !== 'valid') continue;
+            // Get Rewards
+            $rewards = $this->getRewards($access_token, $reward_token);
 
-            $tx = \App\Tx::whereTxHash($this_reward['tx_hash'])->first();
-
-            $reward = \App\Reward::firstOrCreate([
-                'token_id' => $reward_token->id,
-                'tx_id' => $tx->id,
-            ],[
-                'total' => fromSatoshi($access_token->total_issued) * fromSatoshi($this_reward['quantity_per_unit']),
-                'per_token' => fromSatoshi($this_reward['quantity_per_unit']),
-            ]);
-
-            if($reward->wasRecentlyCreated)
+            // Iterate Rewards
+            foreach($rewards as $reward)
             {
-                \App\Jobs\UpdatePlayersRewardsTotal::dispatch($reward);
+                // Create Reward
+                $this->firstOrCreateReward($access_token, $reward_token, $reward);
             }
         }
+        catch(\Exception $e)
+        {
+            // API 404
+        }
+    }
+
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getRewards($access_token, $reward_token)
+    {
+        return $this->counterparty->execute('get_dividends', [
+            'filters' => [
+                [
+                    'field' => 'source',
+                    'op'    => '==',
+                    'value' => $access_token->issuer,
+                ],[
+                    'field' => 'asset',
+                    'op'    => '==',
+                    'value' => $access_token->name,
+                ],[
+                    'field' => 'dividend_asset',
+                    'op'    => '==',
+                    'value' => $reward_token->name,
+                ],[
+                    'field' => 'status',
+                    'op'    => '==',
+                    'value' => 'valid',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Create Reward
+     */
+    private function firstOrCreateReward($access_token, $reward_token, $reward)
+    {
+        $tx = \App\Tx::whereTxHash($reward['tx_hash'])->first();
+        $per_token = fromSatoshi($reward['quantity_per_unit']);
+        $total = fromSatoshi($access_token->total_issued) * $per_token;
+
+        return \App\Reward::firstOrCreate([
+            'token_id' => $reward_token->id,
+            'tx_id' => $tx->id,
+        ],[
+            'per_token' => $per_token,
+            'total' => $total,
+        ]);
     }
 }

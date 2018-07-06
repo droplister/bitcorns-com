@@ -1,0 +1,28 @@
+@if(count($upgrades))
+<div class="row mt-5">
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="cardsTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="cards-tab" data-toggle="tab" href="#cards" role="tab" aria-controls="cards" aria-selected="true">Cards ({{ count($upgrades) }})</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="cardsTabContent">
+                    <div class="tab-pane fade show active" id="cards" role="tabpanel" aria-labelledby="cards-tab">
+                        <div class="row mt-1 mb-2 text-left">
+                            @foreach($upgrades as $upgrade)
+                            <div class="col-6 col-md-4 col-lg-3 mb-4 text-center">
+                                @include('players.partials.show.upgrade')
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif

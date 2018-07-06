@@ -17,7 +17,12 @@ class Group extends Model
      * @var array
      */
     protected $fillable = [
-        'player_id', 'type', 'name', 'slug', 'description', 'rejected_at',
+        'player_id',
+        'type',
+        'name',
+        'slug',
+        'description',
+        'rejected_at',
     ];
 
     /**
@@ -55,7 +60,7 @@ class Group extends Model
      */
     public function balances()
     {
-        return $this->hasManyThrough(Balance::class, Player::class);
+        return $this->hasManyThrough(Balance::class, Player::class)->with('token');
     }
 
     /**
@@ -85,7 +90,7 @@ class Group extends Model
      */
     public function players()
     {
-        return $this->hasMany(Player::class);
+        return $this->hasMany(Player::class)->whereHasAccess();
     }
 
     /**

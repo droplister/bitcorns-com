@@ -14,7 +14,7 @@ class PlayersController extends Controller
      */
     public function index()
     {
-        $players = \App\Player::whereHasAccess()->get();
+        $players = \App\Player::with('group')->whereHasAccess()->get();
 
         return \App\Http\Resources\PlayerCollection::collection($players);
     }

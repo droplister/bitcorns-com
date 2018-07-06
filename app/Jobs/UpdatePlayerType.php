@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use JsonRPC\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,7 +22,7 @@ class UpdatePlayerType implements ShouldQueue
      */
     public function __construct(\App\Player $player)
     {
-        $this->counterparty = new Client(env('CP_API'));
+        $this->counterparty = new \JsonRPC\Client(env('CP_API'));
         $this->counterparty->authentication(env('CP_USER'), env('CP_PASS'));
         $this->player = $player;
     }
@@ -35,7 +34,33 @@ class UpdatePlayerType implements ShouldQueue
      */
     public function handle()
     {
-         $credits = $this->counterparty->execute('get_credits', [
+        try
+        {
+            // First Access Token Credit
+            $credit = $this->getCredit();
+
+            // Multiple Hashes Are Possible
+            $tx_hashes = explode('_', $credit['event']);
+
+            // Determine Actual Creation Tx
+            $creation_tx = $this->getCreationTx($tx_hashes);
+
+            // Update Player Type and Name
+            $this->updatePlayer($creation_tx, $credit['calling_function']);
+        }
+        catch(\Exception $e)
+        {
+            // API 404
+        }
+    }
+
+    /**
+     * Counterparty API
+     * https://counterparty.io/docs/api/#get_table
+     */
+    private function getCredit()
+    {
+        $credits = $this->counterparty->execute('get_credits', [
             'filters' => [
                 [
                     'field' => 'asset',
@@ -49,47 +74,59 @@ class UpdatePlayerType implements ShouldQueue
             ],
         ]);
 
-        $tx_hashes = explode('_', $credits[0]['event']);
-
-        if(count($tx_hashes) > 1)
-        {
-            foreach($tx_hashes as $tx_hash)
-            {
-                if($tx = \App\Tx::whereTxHash($tx_hash)->whereSource($this->player->address)->first())
-                {
-                    $this->player->update([
-                        'tx_id' => $tx->id,
-                        'type' => $credits[0]['calling_function'],
-                        'name' => $this->getGeneratedName($credits[0]['calling_function'], $tx),
-                        'processed_at' => \Carbon\Carbon::now(),
-                    ]);
-                }
-            }
-        }
-        else
-        {
-            foreach($tx_hashes as $tx_hash)
-            {
-                if($tx = \App\Tx::whereTxHash($tx_hash)->first())
-                {
-                    $this->player->update([
-                        'tx_id' => $tx->id,
-                        'type' => $credits[0]['calling_function'],
-                        'name' => $this->getGeneratedName($credits[0]['calling_function'], $tx),
-                        'processed_at' => \Carbon\Carbon::now(),
-                    ]);
-                }
-            }
-        }
+        return $credits[0];
     }
 
-    private function getGeneratedName($type, $tx)
+    /**
+     * Creation TX
+     */
+    private function getCreationTx($tx_hashes)
+    {
+        $tx = $this->getTx($tx_hashes[0]);
+
+        if(! $tx && isset($tx_hashes[1]))
+        {
+            $tx = $this->getTx($tx_hashes[1]);
+        }
+
+        return $tx;
+    }
+
+    /**
+     * Get Tx
+     */
+    private function getTx($tx_hash)
+    {
+        return \App\Tx::where('source', '=', $this->player->address)
+            ->where('tx_hash', '=', $tx_hash)
+            ->first();
+    }
+
+    /**
+     * Update Player
+     */
+    private function updatePlayer($creation_tx, $type)
+    {
+        $name = $this->getGeneratedName($type, $creation_tx);
+
+        return $this->player->update([
+            'tx_id' => $creation_tx->id,
+            'type' => $type,
+            'name' => $name,
+            'processed_at' => \Carbon\Carbon::now(),
+        ]);
+    }
+
+    /**
+     * Generated Name
+     */
+    private function getGeneratedName($type, $creation_tx)
     {
         if('issuance' === $type) return 'Genesis Farm';
 
         if('dividend' === $type)
         {
-            $ties = num2alpha($tx->players->count() - 1);
+            $ties = num2alpha($creation_tx->players()->count() - 1);
         }
 
         $rank = \App\Tx::has('players')->count();

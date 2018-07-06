@@ -1,0 +1,1 @@
+<h1 class="mt-4 mb-4">{{ $token->name }}</h1>

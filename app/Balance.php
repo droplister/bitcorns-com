@@ -7,12 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 class Balance extends Model
 {
     /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'created' => \App\Events\BalanceWasCreated::class,
+        'updated' => \App\Events\BalanceWasUpdated::class,
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-         'player_id', 'token_id', 'quantity',
+         'player_id',
+         'token_id',
+         'quantity',
     ];
 
     /**
@@ -54,6 +66,31 @@ class Balance extends Model
         return $this->belongsTo(Token::class);
     }
 
+    /**
+     * Scope Tokens
+     */
+    public function scopeTokens($query)
+    {
+        return $query->whereHas('token', function($token) {
+            $token->where('type', '=', 'access');
+            $token->orWhere('type', '=', 'reward');
+        });
+    }
+
+    /**
+     * Scope Upgrades
+     */
+    public function scopeUpgrades($query)
+    {
+        return $query->whereHas('token', function($token) {
+            $token->where('type', '=', 'upgrade');
+            $token->where('public', '=', '1');
+        });
+    }
+
+    /**
+     * Scope Non-Zero
+     */
     public function scopeNonZero($query)
     {
         return $query->where('quantity', '>', 0);

@@ -13,8 +13,22 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\Event' => [
-            'App\Listeners\EventListener',
+        'App\Events\BalanceWasCreated' => [
+            'App\Listeners\NullifyCoordinates',
+            'App\Listeners\UpdateTokensBurned',
+        ],
+        'App\Events\BalanceWasUpdated' => [
+            'App\Listeners\NullifyCoordinates',
+            'App\Listeners\UpdateTokensBurned',
+        ],
+        'App\Events\PlayerWasCreated' => [
+            'App\Listeners\UpdatePlayerType',
+        ],
+        'App\Events\RewardWasCreated' => [
+            'App\Listeners\UpdatePlayerRewards',
+        ],
+        'App\Events\TxWasCreated' => [
+            'App\Listeners\UpdateTx',
         ],
     ];
 
